@@ -1,0 +1,2050 @@
+(*
+    Copyright 2003 Javier Callón Álvarez
+
+    This file is part of Modula2Chess.
+
+    Modula2Chess is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    any later version.
+
+    Modula2Chess is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Modula2Chess; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*)
+IMPLEMENTATION MODULE TDATablero;
+FROM InOut IMPORT Write, WriteString, WriteInt, WriteLn, ReadInt, Read, ReadString;
+FROM TextIO IMPORT Accessible, File, OpenInput, Close, GetInt, GetChar;
+FROM Storage IMPORT ALLOCATE, DEALLOCATE;
+FROM IA IMPORT JugadasPosibles;
+
+
+(**************************************************************************************************************)
+(*****************************    Funciones generales para el manejo de tableros     **************************)
+(**************************************************************************************************************)
+
+PROCEDURE JaqueMate(Tablero: TipoTablero; Color: TipoColor):INTEGER;
+(******************************************************************************************************************
+	Determina si el jugador especificado por Color está en jaque mate.
+	Devuelve:
+		0: Si no hay jaque mate ni el rey está ahogado;
+		1: Si es jaque mate;
+		2: Si el rey está ahogado;
+******************************************************************************************************************)
+BEGIN
+	IF JugadasPosibles(Tablero, Color) THEN
+	(* Si se puede hacer alguna jugada *)
+		RETURN 0;
+	ELSE
+	(* Si no se pueden hacer jugadas *)
+		IF ReyEnJaque(Tablero, Color) THEN
+			RETURN 1;
+		ELSE
+			(* No se puede hacer ningún movimiento pero el rey no está en jaque *)
+			WriteString("Rey ahogado"); WriteLn;
+			RETURN 2;
+		END;
+	END;
+END JaqueMate;
+
+PROCEDURE EsMate(Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+	Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
+******************************************************************************************************************)
+BEGIN
+	IF Tablero.UltimaCaptura.Pieza = REY THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END EsMate;
+
+PROCEDURE CopiarTablero (Tablero1: TipoTablero; VAR Tablero2: TipoTablero);
+(******************************************************************************************************************
+   Copia el contenido del primer tablero al segundo. 
+   Los dos tableros deben tener las mismas dimensiones. (Precondición)
+******************************************************************************************************************)
+VAR
+	i, j: INTEGER;
+BEGIN
+	Tablero2.Alto := Tablero1.Alto;
+	Tablero2.Ancho := Tablero1.Ancho;
+	FOR j := 1 TO Tablero1.Alto DO
+		FOR i := 1 TO Tablero1.Ancho DO
+			Tablero2.Casilla[i,j].Pieza := Tablero1.Casilla[i,j].Pieza;
+			Tablero2.Casilla[i,j].Color := Tablero1.Casilla[i,j].Color;
+		END;
+	END;
+	Tablero2.UltimoMovimiento.Origen.x := Tablero1.UltimoMovimiento.Origen.x;
+	Tablero2.UltimoMovimiento.Origen.y := Tablero1.UltimoMovimiento.Origen.y;
+	Tablero2.UltimoMovimiento.Destino.x := Tablero1.UltimoMovimiento.Destino.x;
+	Tablero2.UltimoMovimiento.Destino.y := Tablero1.UltimoMovimiento.Destino.y;
+	Tablero2.ReyBlancoMovido := Tablero1.ReyBlancoMovido;
+	Tablero2.TorreIBlancaMovida := Tablero1.TorreIBlancaMovida;
+	Tablero2.TorreDBlancaMovida := Tablero1.TorreDBlancaMovida;
+	Tablero2.ReyNegroMovido := Tablero1.ReyNegroMovido;
+	Tablero2.TorreINegraMovida := Tablero1.TorreINegraMovida;
+	Tablero2.TorreDNegraMovida := Tablero1.TorreDNegraMovida;
+	Tablero2.UltimaCaptura := Tablero1.UltimaCaptura;
+END CopiarTablero;
+
+
+PROCEDURE LeerTablero (VAR Tablero: TipoTablero; Archivo: ARRAY OF CHAR):BOOLEAN;
+(******************************************************************************************************************
+Lee un tablero guardado en un archivo con el siguiente formato:
+-Alto
+-Ancho
+-Matriz de piezas:
+	R -> REY
+	D -> DAMA
+	T -> TORRE
+	A -> ALFIL
+	C -> CABALLO
+	P -> PEON
+	V -> Casilla vacía.
+  * Se representan con mayúscula las piezas negras y con minúscula las piezas blancas.
+-Coordenadas del último movimiento, por ejemplo:
+	4 2 6 4
+ representaría el movimiento de la pieza que está en 4,2 a la posición 6,4
+-Valores booleanos que representan si se han movido alguna vez las siguientes piezas por este orden:
+ Rey blanco, torre blanca izquierda, torre blanca derecha, rey negro, torre negra izquierda, 
+ torre negra derecha. Por ejemplo:
+ 0 0 1 1 1 0
+
+Devuelve TRUE en caso de error y FALSE en caso de no existir error en la lectura.
+******************************************************************************************************************)
+VAR
+	F: File;
+	i, j: INTEGER; (* Índices para la matriz *)
+	Temp: CHAR; (* Almacenamiento temporal para el tipo de pieza *)
+	Temp2: INTEGER;
+BEGIN
+(* Comprobar si existe el archivo y se puede escribir en él *)
+	IF NOT(Accessible (Archivo, FALSE)) THEN RETURN TRUE END;
+(* Abrir archivo *)
+	OpenInput (F, Archivo);
+(* Leer alto y ancho *)
+	GetInt (F, Tablero.Alto);
+	(* Comprueba que el alto no excede el tamaño máximo *)
+	IF Tablero.Alto > MAXALTO THEN RETURN TRUE END;
+		(* Lee el salto de linea *)
+		GetChar (F, Temp);
+		(* Lee el salto de linea *)
+		GetChar (F, Temp);
+	GetInt (F, Tablero.Ancho);
+	(* Comprueba que el ancho no excede el tamaño máximo *)
+	IF Tablero.Alto > MAXANCHO THEN RETURN TRUE END;
+		(* Lee el salto de linea *)
+		GetChar (F, Temp);
+		(* Lee el salto de linea *)
+		GetChar (F, Temp);
+(* Leer casillas *)
+	FOR j := (Tablero.Alto) TO 1 BY -1 DO
+		FOR i := 1 TO Tablero.Ancho DO
+			GetChar (F, Temp);
+			CASE Temp OF
+				'R':
+					Tablero.Casilla[i,j].Pieza := REY;
+					Tablero.Casilla[i,j].Color := NEGRO;
+				|
+				'D':
+					Tablero.Casilla[i,j].Pieza := DAMA;
+					Tablero.Casilla[i,j].Color := NEGRO;
+				|
+				'T':
+					Tablero.Casilla[i,j].Pieza := TORRE;
+					Tablero.Casilla[i,j].Color := NEGRO;
+				|
+				'A':
+					Tablero.Casilla[i,j].Pieza := ALFIL;
+					Tablero.Casilla[i,j].Color := NEGRO;
+				|
+				'C':
+					Tablero.Casilla[i,j].Pieza := CABALLO;
+					Tablero.Casilla[i,j].Color := NEGRO;
+				|
+				'P':
+					Tablero.Casilla[i,j].Pieza := PEON;
+					Tablero.Casilla[i,j].Color := NEGRO;
+				|
+				'r':
+					Tablero.Casilla[i,j].Pieza := REY;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+				'd':
+					Tablero.Casilla[i,j].Pieza := DAMA;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+				't':
+					Tablero.Casilla[i,j].Pieza := TORRE;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+				'a':
+					Tablero.Casilla[i,j].Pieza := ALFIL;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+				'c':
+					Tablero.Casilla[i,j].Pieza := CABALLO;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+				'p':
+					Tablero.Casilla[i,j].Pieza := PEON;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+				'V':
+					Tablero.Casilla[i,j].Pieza := VACIA;
+					Tablero.Casilla[i,j].Color := BLANCO;
+				|
+			ELSE
+				RETURN TRUE;
+			END;
+		END;
+		(* Lee el salto de linea *)
+		GetChar (F, Temp);
+	END;
+	(* Lee el salto de linea *)
+	GetChar (F, Temp);
+(* Leer coordenadas del último movimiento *)
+	GetInt (F, Tablero.UltimoMovimiento.Origen.x);
+	GetInt (F, Tablero.UltimoMovimiento.Origen.y);
+	GetInt (F, Tablero.UltimoMovimiento.Destino.x);
+	GetInt (F, Tablero.UltimoMovimiento.Destino.y);
+	IF (Tablero.UltimoMovimiento.Origen.x > MAXANCHO) OR
+	(Tablero.UltimoMovimiento.Origen.y > MAXALTO) OR
+	(Tablero.UltimoMovimiento.Destino.x > MAXANCHO) OR
+	(Tablero.UltimoMovimiento.Destino.y > MAXALTO) OR
+	(Tablero.UltimoMovimiento.Origen.x < 1) OR
+	(Tablero.UltimoMovimiento.Origen.y < 1) OR
+	(Tablero.UltimoMovimiento.Destino.x < 1) OR
+	(Tablero.UltimoMovimiento.Destino.y < 1) THEN
+		RETURN TRUE;
+	END;
+	(* Lee el salto de linea *)
+	GetChar (F, Temp);
+	(* Lee el salto de linea *)
+	GetChar (F, Temp);
+(* Leer si los reyes y las torres han sido movidos *)
+	GetInt (F, Temp2);
+	IF Temp2 = 1 THEN
+		Tablero.ReyBlancoMovido := TRUE;
+	ELSIF Temp2 = 0 THEN
+		Tablero.ReyBlancoMovido := FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+	GetInt (F, Temp2);
+	IF Temp2 = 1 THEN
+		Tablero.TorreIBlancaMovida := TRUE;
+	ELSIF Temp2 = 0 THEN
+		Tablero.TorreIBlancaMovida := FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+	GetInt (F, Temp2);
+	IF Temp2 = 1 THEN
+		Tablero.TorreDBlancaMovida := TRUE;
+	ELSIF Temp2 = 0 THEN
+		Tablero.TorreDBlancaMovida := FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+	GetInt (F, Temp2);
+	IF Temp2 = 1 THEN
+		Tablero.ReyNegroMovido := TRUE;
+	ELSIF Temp2 = 0 THEN
+		Tablero.ReyNegroMovido := FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+	GetInt (F, Temp2);
+	IF Temp2 = 1 THEN
+		Tablero.TorreINegraMovida := TRUE;
+	ELSIF Temp2 = 0 THEN
+		Tablero.TorreINegraMovida := FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+	GetInt (F, Temp2);
+	IF Temp2 = 1 THEN
+		Tablero.TorreDNegraMovida := TRUE;
+	ELSIF Temp2 = 0 THEN
+		Tablero.TorreDNegraMovida := FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+	(* Lee el salto de linea *)
+	GetChar (F, Temp);
+(* Se cierra el archivo *)
+	Close (F);
+(* Se comprueba que haya dos reyes (uno de cada color) *)
+
+(* POR HACER *)
+
+(* Se añaden los valores predeterminados para la última captura *)
+	Tablero.UltimaCaptura.Pieza := VACIA;
+	Tablero.UltimaCaptura.Color := BLANCO;
+(* Si se ha llegado a este punto, no ha habido error *)
+	RETURN FALSE;
+END LeerTablero;
+
+
+PROCEDURE MoverPieza (Posicion1, Posicion2: TipoPosicion; VAR Tablero: TipoTablero; Humano: BOOLEAN; SDL: BOOLEAN);
+(******************************************************************************************************************
+  Mueve la pieza de la casilla Posicion1 a la casilla Posicion2 sin hacer comprobaciones.
+  Las comprobaciones deben hacerse anteriormente (precondición)
+*******************************************************************************************************************)
+VAR
+	OrigenTorre, DestinoTorre: TipoPosicion;
+	PromocionPeon: BOOLEAN;
+BEGIN
+(* Guardar UltimaCaptura si procede*)
+	(* Si la posición de destino no está vacía, se trata de una captura y se guarda*)
+	IF Tablero.Casilla[Posicion2.x, Posicion2.y].Pieza # VACIA THEN
+		Tablero.UltimaCaptura.Pieza := Tablero.Casilla[Posicion2.x, Posicion2.y].Pieza;
+		Tablero.UltimaCaptura.Color := Tablero.Casilla[Posicion2.x, Posicion2.y].Color;
+	END;
+(* Si se va a mover el rey o una torre *)
+	PromocionPeon := FALSE;
+	IF Tablero.Casilla[Posicion1.x, Posicion1.y].Pieza = REY THEN
+		IF Tablero.Casilla[Posicion1.x, Posicion1.y].Color = BLANCO THEN
+			Tablero.ReyBlancoMovido := TRUE;
+			IF ((Posicion1.x + 2) = Posicion2.x) THEN
+			(* Enroque a la derecha *)
+				OrigenTorre.x := Tablero.Ancho;
+				OrigenTorre.y := 1;
+				DestinoTorre.x := Posicion2.x - 1;
+				DestinoTorre.y := 1;
+				(* Mover Torre *)
+				(* Copiar la casilla de origen a la casilla de destino *)
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Pieza := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza;
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Color := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color;
+				(* Vaciar la casilla de origen *)
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza := VACIA;
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color := BLANCO;
+				(* Torre Movida *)
+				Tablero.TorreDBlancaMovida := TRUE;
+			ELSIF ((Posicion1.x - 2) = Posicion2.x) THEN
+			(* Enroque a la izquierda *)
+				OrigenTorre.x := 1;
+				OrigenTorre.y := 1;
+				DestinoTorre.x := Posicion2.x + 1;
+				DestinoTorre.y := 1;
+				(* Mover Torre *)
+				(* Copiar la casilla de origen a la casilla de destino *)
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Pieza := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza;
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Color := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color;
+				(* Vaciar la casilla de origen *)
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza := VACIA;
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color := BLANCO;
+				(* Torre Movida *)
+				Tablero.TorreIBlancaMovida := TRUE;
+			END;
+		ELSE
+			Tablero.ReyNegroMovido := TRUE;
+			IF ((Posicion1.x + 2) = Posicion2.x) THEN
+			(* Enroque a la derecha *)
+				OrigenTorre.x := Tablero.Ancho;
+				OrigenTorre.y := Tablero.Alto;
+				DestinoTorre.x := Posicion2.x - 1;
+				DestinoTorre.y := Tablero.Alto;
+				(* Mover Torre *)
+				(* Copiar la casilla de origen a la casilla de destino *)
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Pieza := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza;
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Color := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color;
+				(* Vaciar la casilla de origen *)
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza := VACIA;
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color := NEGRO;
+				(* Torre Movida *)
+				Tablero.TorreDNegraMovida := TRUE;
+			ELSIF ((Posicion1.x - 2) = Posicion2.x) THEN
+			(* Enroque a la izquierda *)
+				OrigenTorre.x := 1;
+				OrigenTorre.y := Tablero.Alto;
+				DestinoTorre.x := Posicion2.x + 1;
+				DestinoTorre.y := Tablero.Alto;
+				(* Mover Torre *)
+				(* Copiar la casilla de origen a la casilla de destino *)
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Pieza := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza;
+				Tablero.Casilla[DestinoTorre.x, DestinoTorre.y].Color := Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color;
+				(* Vaciar la casilla de origen *)
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Pieza := VACIA;
+				Tablero.Casilla[OrigenTorre.x, OrigenTorre.y].Color := NEGRO;
+				(* Torre Movida *)
+				Tablero.TorreINegraMovida := TRUE;
+			END;
+		END;
+	ELSIF Tablero.Casilla[Posicion1.x, Posicion1.y].Pieza = TORRE THEN
+		IF Tablero.Casilla[Posicion1.x, Posicion1.y].Color = BLANCO THEN
+			IF (Posicion1.x = 1) AND (Posicion1.y = 1) THEN
+			(* Torre blanca izquierda *)
+				Tablero.TorreIBlancaMovida := TRUE;
+			ELSIF (Posicion1.x = Tablero.Ancho) AND (Posicion1.y = 1) THEN
+			(* Torre blanca derecha *)
+				Tablero.TorreDBlancaMovida := TRUE;
+			END;
+		ELSE
+			IF (Posicion1.x = 1) AND (Posicion1.y = Tablero.Alto) THEN
+			(* Torre negra izquierda *)
+				Tablero.TorreINegraMovida := TRUE;
+			ELSIF (Posicion1.x = Tablero.Ancho) AND (Posicion1.y = Tablero.Alto) THEN
+			(* Torre negra derecha *)
+				Tablero.TorreDNegraMovida := TRUE;
+			END;
+		END;
+	ELSIF Tablero.Casilla[Posicion1.x, Posicion1.y].Pieza = PEON THEN
+		IF (Tablero.Casilla[Posicion2.x, Posicion2.y].Pieza = VACIA) AND
+		   (Posicion1.x # Posicion2.x) THEN
+		(* El peón está comiendo al paso *)
+				Tablero.Casilla[Posicion2.x, Posicion1.y].Pieza := VACIA;
+				Tablero.Casilla[Posicion2.x, Posicion1.y].Color := BLANCO;
+		END;
+		IF ((Posicion2.y = Tablero.Alto) AND (Tablero.Casilla[Posicion1.x, Posicion1.y].Color = BLANCO)) OR
+		   ((Posicion2.y = 1) AND (Tablero.Casilla[Posicion1.x, Posicion1.y].Color = NEGRO)) THEN
+		(* Promoción del peón *)
+			PromocionPeon := TRUE;
+		END;
+	END;
+(* Copiar la casilla de origen a la casilla de destino *)
+	IF PromocionPeon THEN
+		IF Humano THEN
+				ElegirPieza(Tablero.Casilla[Posicion2.x, Posicion2.y].Pieza);
+		ELSE
+			(* Juega la máquina *)
+		END;
+		Tablero.Casilla[Posicion2.x, Posicion2.y].Color := Tablero.Casilla[Posicion1.x, Posicion1.y].Color;
+	ELSE
+		Tablero.Casilla[Posicion2.x, Posicion2.y].Pieza := Tablero.Casilla[Posicion1.x, Posicion1.y].Pieza;
+		Tablero.Casilla[Posicion2.x, Posicion2.y].Color := Tablero.Casilla[Posicion1.x, Posicion1.y].Color;
+	END;
+(* Vaciar la casilla de origen *)
+	Tablero.Casilla[Posicion1.x, Posicion1.y].Pieza := VACIA;
+	Tablero.Casilla[Posicion1.x, Posicion1.y].Color := BLANCO;
+(* Guardar movimiento *)
+	Tablero.UltimoMovimiento.Origen.x := Posicion1.x;
+	Tablero.UltimoMovimiento.Origen.y := Posicion1.y;
+	Tablero.UltimoMovimiento.Destino.x := Posicion2.x;
+	Tablero.UltimoMovimiento.Destino.y := Posicion2.y;
+END MoverPieza;
+
+
+PROCEDURE PiezaAmenazada (Posicion: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+   Devuelve el valor TRUE si alguna pieza está amenazando la posición suministrada como parámetro y FALSE en 
+   caso contrario.
+******************************************************************************************************************)
+VAR
+	Actual: TipoPosicion;
+BEGIN
+
+	(* Movimiento a la izquierda *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.x := Actual.x - 1;
+	UNTIL (Actual.x <= 1) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento arriba a la izquierda *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.x := Actual.x - 1;
+		Actual.y := Actual.y + 1;
+	UNTIL (Actual.x <= 1) OR (Actual.y >= Tablero.Alto) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento arriba *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.y := Actual.y + 1;
+	UNTIL (Actual.y >= Tablero.Alto) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento arriba a la derecha *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.x := Actual.x + 1;
+		Actual.y := Actual.y + 1;
+	UNTIL (Actual.x >= Tablero.Ancho) OR (Actual.y >= Tablero.Alto) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento a la derecha *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.x := Actual.x + 1;
+	UNTIL (Actual.x >= Tablero.Ancho) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento abajo a la derecha *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.x := Actual.x + 1;
+		Actual.y := Actual.y - 1;
+	UNTIL (Actual.x >= Tablero.Ancho) OR (Actual.y <= 1) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento abajo*)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.y := Actual.y - 1;
+	UNTIL (Actual.y <= 1) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimiento abajo a la derecha *)
+	(* Se inicializa la posición a comprobar *)
+	Actual.x := Posicion.x;
+	Actual.y := Posicion.y;
+	REPEAT
+		(* Se mueve una posición *)
+		Actual.x := Actual.x - 1;
+		Actual.y := Actual.y - 1;
+	UNTIL (Actual.x <= 1) OR (Actual.y <= 1) OR (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA);
+	IF MovimientoLegal (Actual, Posicion, Tablero, FALSE) AND (Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA) THEN
+	(* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen *)
+		RETURN TRUE;
+	END;
+
+	(* Movimientos de caballo *)
+
+	IF (Posicion.y + 2) <= Tablero.Alto THEN
+
+		Actual.y := Posicion.y + 2;
+
+		IF Posicion.x < Tablero.Ancho THEN
+		(* Arriba-Arriba-Derecha *)
+			Actual.x := Posicion.x + 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+		           (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+		IF Posicion.x > 1 THEN
+		(* Arriba-Arriba-Izquierda *)
+			Actual.x := Posicion.x - 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+		           (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+	END;
+
+
+	IF (Posicion.y - 2) >= 1 THEN
+
+		Actual.y := Posicion.y - 2;
+		
+		IF Posicion.x < Tablero.Ancho THEN
+		(* Abajo-Abajo-Derecha *)
+			Actual.x := Posicion.x + 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+		           (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+		IF Posicion.x > 1 THEN
+		(* Abajo-Abajo-Izquierda *)
+			Actual.x := Posicion.x - 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+		           (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+	END;
+
+
+	IF (Posicion.x - 2) >= 1 THEN
+
+		Actual.x := Posicion.x - 2;
+
+		IF Posicion.y < Tablero.Alto THEN
+		(* Izquierda-Izquierda-Arriba *)
+			Actual.y := Posicion.y + 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+	        	   (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+		IF Posicion.y > 1 THEN
+			(* Izquierda-Izquierda-Abajo *)
+			Actual.y := Posicion.y - 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+        		   (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+	END;
+
+
+	IF (Posicion.x + 2) <= Tablero.Ancho THEN
+
+		Actual.x := Posicion.x + 2;
+
+		IF Posicion.y < Tablero.Alto THEN
+		(* Derecha-Derecha-Arriba *)
+			Actual.y := Posicion.y + 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+	        	   (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+		IF Posicion.y > 1 THEN
+		(* Derecha-Derecha-Abajo *)
+			Actual.y := Posicion.y - 1;
+			IF (Tablero.Casilla[Actual.x, Actual.y].Pieza = CABALLO) AND 
+        		   (Tablero.Casilla[Actual.x, Actual.y].Color # Tablero.Casilla[Posicion.x, Posicion.y].Color) THEN
+				RETURN TRUE;
+			END;
+		END;
+	END;
+
+	(* El llegar hasta este punto sin haber encontrado ninguna pieza que amenace la posición original supone
+	   que la pieza no está amenazada *)
+	RETURN FALSE;
+
+END PiezaAmenazada;
+
+PROCEDURE PiezaAmenazada2(Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+	Devuelve el valor TRUE si está amenazada la pieza en la posición 1 al moverla y FALSE caso contrario.
+******************************************************************************************************************)
+VAR
+	TableroTemp: TipoTablero;
+BEGIN
+			CopiarTablero(Tablero,TableroTemp);
+			MoverPieza (Posicion1, Posicion2, TableroTemp, FALSE, FALSE);
+			IF PiezaAmenazada (Posicion2, TableroTemp) THEN
+				RETURN TRUE;
+			ELSE
+				RETURN FALSE;
+			END;
+END PiezaAmenazada2;
+
+PROCEDURE JugadaEnTablero (Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+   Devuelve el valor TRUE si las posiciones de la jugada no exceden los límites del tablero y
+   devuelve FALSE en caso contrario.
+******************************************************************************************************************)
+BEGIN
+	IF (Posicion1.x >= 1) AND (Posicion1.x <= Tablero.Ancho) AND
+	   (Posicion1.y >= 1) AND (Posicion1.y <= Tablero.Alto) AND
+	   (Posicion2.x >= 1) AND (Posicion2.x <= Tablero.Ancho) AND
+	   (Posicion2.y >= 1) AND (Posicion2.y <= Tablero.Alto) THEN
+	(* Las posiciones están dentro de los límites del tablero *)
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END JugadaEnTablero;
+
+
+PROCEDURE PosicionesIguales (Posicion1, Posicion2: TipoPosicion):BOOLEAN;
+(******************************************************************************************************************
+Si las posiciones son iguales, devuelve TRUE, en caso contrario devuelve FALSE
+
+Se requieren las comprobaciones anteriores de (precondiciones):
+-Comprobar que las direcciones no exceden los límites del tablero.
+******************************************************************************************************************)
+BEGIN
+	IF (Posicion1.x = Posicion2.x) AND (Posicion1.y = Posicion2.y) THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END PosicionesIguales;
+
+
+PROCEDURE DireccionVacia (Posicion: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+   Devuelve TRUE si no hay una pieza en la posicion, en caso contrario devuelve FALSE.
+Se requieren las comprobaciones anteriores de (precondiciones):
+-Comprobar que la dirección no excede los límites del tablero.
+******************************************************************************************************************)
+BEGIN
+	IF Tablero.Casilla[Posicion.x,Posicion.y].Pieza = VACIA THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END DireccionVacia;
+
+
+PROCEDURE MismoColor (Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+   Función que comprueba si dos piezas son del mismo color.
+   Devuelve TRUE en caso afirmativo y FALSE en caso contrario.
+
+Se requieren las comprobaciones anteriores de (precondiciones):
+-Comprobar que las direcciones no exceden los límites del tablero.
+******************************************************************************************************************)
+BEGIN
+	IF NOT(DireccionVacia (Posicion2, Tablero)) AND 
+	   (Tablero.Casilla[Posicion1.x,Posicion1.y].Color = Tablero.Casilla[Posicion2.x,Posicion2.y].Color) THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END MismoColor;
+
+
+PROCEDURE CapturaAlPaso (Tablero: TipoTablero; Origen, Destino: TipoPosicion):BOOLEAN;
+(******************************************************************************************************************
+  Función que comprueba si un peon puede comer al paso.
+  Devuelve TRUE en caso afirmativo y FALSE en caso negativo.
+  Origen y Destino son las posiciones de origen y destino respectivamente del peón que realiza la captura.
+******************************************************************************************************************)
+BEGIN
+	IF (Tablero.Casilla[Destino.x, Origen.y].Pieza = PEON) THEN
+	(* Hay un peón en la posición adecuada *)
+		IF (Tablero.UltimoMovimiento.Destino.x = Destino.x) AND (Tablero.UltimoMovimiento.Destino.y = Origen.y) AND
+		   (Tablero.UltimoMovimiento.Origen.x = Destino.x) AND (Tablero.UltimoMovimiento.Origen.y = Destino.y)  THEN
+			(* Hay un peon en la posición contigüa que en el anterior movimiento avanzó una casilla *)
+			RETURN TRUE;
+		ELSE
+			RETURN FALSE;
+		END;
+	ELSE
+	(* No se puede capturar al paso *)
+		RETURN FALSE;
+	END;
+END CapturaAlPaso;
+
+
+PROCEDURE Enroque (Tablero: TipoTablero; Posicion: TipoPosicion; Tipo: INTEGER):BOOLEAN;
+(******************************************************************************************************************
+  Función que comprueba si se puede hacer un enroque.
+  Devuelve TRUE en caso afirmativo y FALSE en caso negativo.
+  La variable Tipo representa si se trata de un enroque corto o largo (1 largo, 2 corto).
+******************************************************************************************************************)
+VAR
+	PosicionTorreBlancaI: TipoPosicion;
+	PosicionTorreBlancaD: TipoPosicion;
+	PosicionTorreNegraI: TipoPosicion;
+	PosicionTorreNegraD: TipoPosicion;
+	
+BEGIN
+
+	PosicionTorreBlancaI.x := 1;
+	PosicionTorreBlancaI.y := 1;
+	PosicionTorreBlancaD.x := Tablero.Ancho;
+	PosicionTorreBlancaD.y := 1;
+	PosicionTorreNegraI.x := 1;
+	PosicionTorreNegraI.y := Tablero.Alto;
+	PosicionTorreNegraD.x := Tablero.Ancho;
+	PosicionTorreNegraD.y := Tablero.Alto;
+
+	IF Tablero.Casilla[Posicion.x,Posicion.y].Color = BLANCO THEN
+	(* La pieza a mover es blanca *)
+
+		IF NOT(Tablero.ReyBlancoMovido) 
+		AND NOT(ReyEnJaque(Tablero, BLANCO)) THEN
+		(* Si el rey no ha sido movido y no está amenazado *)
+			IF (Tipo=1) AND NOT(Tablero.TorreIBlancaMovida)
+			AND NOT(PiezaAmenazada (PosicionTorreBlancaI, Tablero)) THEN
+			(* Enroque largo y torre izquierda no movida y no amenazada *)
+				RETURN TRUE;
+			ELSIF (Tipo=2) AND NOT(Tablero.TorreDBlancaMovida) 
+			AND NOT(PiezaAmenazada (PosicionTorreBlancaD, Tablero)) THEN
+			(* Enroque corto y torre derecha no movida y no amenazada *)
+				RETURN TRUE;
+			ELSE
+			(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		ELSE
+		(* Movimiento ilegal *)
+			RETURN FALSE;
+		END;
+	ELSE
+	(* La pieza a mover es negra *)
+
+		IF NOT(Tablero.ReyNegroMovido) 
+		AND NOT(ReyEnJaque(Tablero, NEGRO)) THEN
+		(* Si el rey no ha sido movido y no está amenazado *)
+			IF (Tipo=1) AND NOT(Tablero.TorreINegraMovida) 
+			AND NOT(PiezaAmenazada (PosicionTorreNegraI, Tablero)) THEN
+			(* Enroque largo y torre izquierda no movida y no amenazada *)
+				RETURN TRUE;
+			ELSIF (Tipo=2) AND NOT(Tablero.TorreDNegraMovida) 
+			AND NOT(PiezaAmenazada (PosicionTorreNegraD, Tablero)) THEN
+			(* Enroque corto y torre derecha no movida y no amenazada *)
+				RETURN TRUE;
+			ELSE
+			(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		ELSE
+		(* Movimiento ilegal *)
+			RETURN FALSE;
+		END;
+	END;
+END Enroque;
+
+
+PROCEDURE DireccionValida (Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+   Función que valida la dirección de un movimiento.
+   Devuelve TRUE para los casos válidos y FALSE para movimientos no válidos.
+
+Se requieren las comprobaciones anteriores de (precondiciones):
+-Comprobar que las direcciones no exceden los límites del tablero.
+-Comprobar que las direcciones de origen y destino no son iguales.
+-Comprobar que la dirección de origen no está vacía.
+-Comprobar que la dirección de destino no contiene una pieza del mismo color.
+******************************************************************************************************************)
+BEGIN
+	CASE Tablero.Casilla[Posicion1.x,Posicion1.y].Pieza OF
+		PEON:
+			IF Tablero.Casilla[Posicion1.x, Posicion1.y].Color = BLANCO THEN
+			(* La pieza a mover es blanca *)
+				IF (Posicion1.x = Posicion2.x) THEN
+				(* Se mantiene en la misma columna *)
+					IF ((Posicion1.y + 1) = Posicion2.y) THEN
+					(* Avanzar una casilla *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza = VACIA THEN
+							RETURN TRUE;
+						ELSE
+							RETURN FALSE;
+						END;
+					ELSIF ((Posicion1.y + 2) = Posicion2.y) AND (Posicion1.y = 2) THEN
+					(* Avanzar dos casillas *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza = VACIA THEN
+							RETURN TRUE;
+						ELSE
+							RETURN FALSE;
+						END;
+					ELSE
+					(* Si se mantiene en la misma columna y se se hace un movimiento que no sea
+					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal *)
+						RETURN FALSE;
+					END;
+				ELSIF ((Posicion1.y + 1) = Posicion2.y) THEN
+				(* Avanzar en diagonal para capturas *)
+					IF((Posicion1.x + 1) = Posicion2.x) THEN
+					(* Captura hacia la derecha *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza # VACIA THEN
+						(* En la posición de destino hay un peon *)
+							RETURN TRUE;
+						ELSIF CapturaAlPaso(Tablero, Posicion1, Posicion2) THEN
+						(* Se puede capturar al paso *)
+							RETURN TRUE;
+						ELSE
+						(* Si no se puede hacer una captura *)
+							RETURN FALSE;
+						END;
+					ELSIF ((Posicion1.x - 1) = Posicion2.x) THEN
+					(* Captura hacia la izquierda *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza # VACIA THEN
+						(* En la posición de destino hay un peon *)
+							RETURN TRUE;
+						ELSIF CapturaAlPaso(Tablero, Posicion1, Posicion2) THEN
+						(* Se puede capturar al paso *)
+							RETURN TRUE;
+						ELSE
+						(* Si no existe un peón que se pueda capturar *)
+							RETURN FALSE;
+						END;
+					ELSE
+					(* Si se avanza una posición y se mueve lateralmente más de una posicion es
+					   un movimiento ilegal *)
+						RETURN FALSE;
+					END;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSE
+			(* La pieza a mover es negra *)
+				IF (Posicion1.x = Posicion2.x) THEN
+				(* Se mantiene en la misma columna *)
+					IF ((Posicion1.y - 1) = Posicion2.y) THEN
+					(* Avanzar una casilla *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza = VACIA THEN
+							RETURN TRUE;
+						ELSE
+							RETURN FALSE;
+						END;
+					ELSIF ((Posicion1.y - 2) = Posicion2.y) AND (Posicion1.y = (Tablero.Alto - 1)) THEN
+					(* Avanzar dos casillas *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza = VACIA THEN
+							RETURN TRUE;
+						ELSE
+							RETURN FALSE;
+						END;
+					ELSE
+					(* Si se mantiene en la misma columna y se se hace un movimiento que no sea
+					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal *)
+						RETURN FALSE;
+					END;
+				ELSIF ((Posicion1.y - 1) = Posicion2.y) THEN
+				(* Avanzar en diagonal para capturas *)
+					IF((Posicion1.x + 1) = Posicion2.x) THEN
+					(* Captura hacia la derecha *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza # VACIA THEN
+						(* En la posición de destino hay un peon *)
+							RETURN TRUE;
+						ELSIF  CapturaAlPaso(Tablero, Posicion1, Posicion2)THEN
+						(* Se puede capturar al paso *)
+							RETURN TRUE;
+						ELSE
+						(* Si no se puede hacer una captura *)
+							RETURN FALSE;
+						END;
+					ELSIF ((Posicion1.x - 1) = Posicion2.x) THEN
+					(* Captura hacia la izquierda *)
+						IF Tablero.Casilla[Posicion2.x,Posicion2.y].Pieza # VACIA THEN
+						(* En la posición de destino hay un peon *)
+							RETURN TRUE;
+						ELSIF CapturaAlPaso(Tablero, Posicion1, Posicion2) THEN
+						(* Se puede capturar al paso *)
+							RETURN TRUE;
+						ELSE
+						(* Si no existe un peón que se pueda capturar *)
+							RETURN FALSE;
+						END;
+					ELSE
+					(* Si se avanza una posición y se mueve lateralmente más de una posicion es
+					   un movimiento ilegal *)
+						RETURN FALSE;
+					END;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			END;
+		|
+		TORRE:
+			IF Posicion1.x = Posicion2.x THEN
+			(* Movimiento horizontal *)
+				RETURN TRUE;
+			ELSIF Posicion1.y = Posicion2.y THEN
+			(* Movimiento vertical *)
+				RETURN TRUE;
+			ELSE
+			(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		|
+		ALFIL:
+			IF ((Posicion2.x - Posicion1.x) = (Posicion2.y - Posicion1.y)) OR
+			   ((Posicion2.x - Posicion1.x) = (- (Posicion2.y - Posicion1.y))) THEN
+			(* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) *)
+				RETURN TRUE;
+			ELSE
+			(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		|
+		CABALLO:
+			IF (Posicion1.x + 2) = Posicion2.x THEN
+			(* Movimiento de dos casillas a la derecha *)
+				IF (Posicion1.y + 1) = Posicion2.y THEN
+				(* Movimiento de una casilla arriba *)
+					RETURN TRUE;
+				ELSIF (Posicion1.y - 1) = Posicion2.y THEN
+				(* Movimiento de una casilla abajo *)
+					RETURN TRUE;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSIF (Posicion1.x - 2) = Posicion2.x THEN
+			(* Movimiento de dos casillas a la izquierda *)
+				IF (Posicion1.y + 1) = Posicion2.y THEN
+				(* Movimiento de una casilla arriba *)
+					RETURN TRUE;
+				ELSIF (Posicion1.y - 1) = Posicion2.y THEN
+				(* Movimiento de una casilla abajo *)
+					RETURN TRUE;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSIF (Posicion1.y + 2) = Posicion2.y THEN
+			(* Movimiento de dos casillas hacia arriba *)
+				IF (Posicion1.x + 1) = Posicion2.x THEN
+				(* Movimiento de una casilla a la derecha *)
+					RETURN TRUE;
+				ELSIF (Posicion1.x - 1) = Posicion2.x THEN
+				(* Movimiento de una casilla a la izquierda *)
+					RETURN TRUE;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSIF (Posicion1.y - 2) = Posicion2.y THEN
+			(* Movimiento de dos casillas hacia abajo *)
+				IF (Posicion1.x + 1) = Posicion2.x THEN
+				(* Movimiento de una casilla a la derecha *)
+					RETURN TRUE;
+				ELSIF (Posicion1.x - 1) = Posicion2.x THEN
+				(* Movimiento de una casilla a la izquierda *)
+					RETURN TRUE;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSE
+			(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		|
+		DAMA:
+			IF Posicion1.x = Posicion2.x THEN
+			(* Movimiento horizontal *)
+				RETURN TRUE;
+			ELSIF Posicion1.y = Posicion2.y THEN
+			(* Movimiento vertical *)
+				RETURN TRUE;
+			ELSIF ((Posicion2.x - Posicion1.x) = (Posicion2.y - Posicion1.y)) OR
+			      ((Posicion2.x - Posicion1.x) = (- (Posicion2.y - Posicion1.y))) THEN
+			(* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) *)
+				RETURN TRUE;
+			ELSE
+			(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		|
+		REY:
+			IF (((Posicion2.x - Posicion1.x) <= 1) AND ((Posicion2.x - Posicion1.x) >= -1)) AND
+			   (((Posicion2.y - Posicion1.y) <= 1) AND ((Posicion2.y - Posicion1.y) >= -1)) THEN
+			(* Se mueve el rey en cualquier dirección sólo una casilla *)
+				RETURN TRUE;
+			ELSIF ((Posicion1.x - 2) = Posicion2.x) AND (Posicion1.y = Posicion2.y) THEN
+			(* Enroque largo *)
+				IF Enroque(Tablero, Posicion1, 1) THEN
+				(* Se comprueba la posibilidad de enroque *)
+					RETURN TRUE;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSIF ((Posicion1.x + 2) = Posicion2.x) AND (Posicion1.y = Posicion2.y) THEN
+			(* Enroque corto *)
+				IF Enroque(Tablero, Posicion1, 2) THEN
+				(* Se comprueba la posibilidad de enroque *)
+					RETURN TRUE;
+				ELSE
+				(* Movimiento ilegal *)
+					RETURN FALSE;
+				END;
+			ELSE
+				(* Movimiento ilegal *)
+				RETURN FALSE;
+			END;
+		|
+	ELSE
+		(* Movimiento ilegal *)
+		RETURN FALSE;
+	END;
+END DireccionValida;
+
+
+PROCEDURE CaminoDespejado (Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero):BOOLEAN;
+(******************************************************************************************************************
+   Devuelve TRUE en caso de que no haya obstáculos entre las posiciones de origen y destino de la jugada
+   y FALSE en caso contrario 
+
+Se requieren las comprobaciones anteriores de (precondiciones):
+-Comprobar que las direcciones no exceden los límites del tablero.
+-Comprobar que las direcciones de origen y destino no son iguales.
+-Comprobar que la dirección de origen no está vacía.
+-Comprobar que la dirección de destino no contiene una pieza del mismo color.
+-Comprobar que la dirección del movimiento es posible.
+******************************************************************************************************************)
+VAR
+	Actual: TipoPosicion;
+	Indice: INTEGER;
+BEGIN
+	IF Tablero.Casilla[Posicion1.x,Posicion1.y].Pieza # CABALLO THEN
+		IF Tablero.Casilla[Posicion1.x,Posicion1.y].Pieza # REY THEN
+			Actual.x := Posicion1.x;
+			Actual.y := Posicion1.y;
+			IF Actual.y < Posicion2.y THEN
+			(* Movimiento hacia arriba *)
+				IF Actual.x < Posicion2.x THEN
+				(* Movimiento a la derecha *)
+					Actual.x := Actual.x + 1;
+					Actual.y := Actual.y + 1;
+					WHILE (Actual.x < Posicion2.x) AND (Actual.y < Posicion2.y) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.x := Actual.x + 1;
+						Actual.y := Actual.y + 1;
+					END;
+					RETURN TRUE;
+				ELSIF Actual.x > Posicion2.x THEN
+				(* Movimiento a la izquierda *)
+					Actual.x := Actual.x - 1;
+					Actual.y := Actual.y + 1;
+					WHILE (Actual.x > Posicion2.x) AND (Actual.y < Posicion2.y) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.x := Actual.x - 1;
+						Actual.y := Actual.y + 1;
+					END;
+					RETURN TRUE;
+				ELSE
+				(* Movimiento vertical *)
+					Actual.y := Actual.y + 1;
+					WHILE (Actual.y < Posicion2.y) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.y := Actual.y + 1;
+					END;
+					RETURN TRUE;
+				END;
+			ELSIF Actual.y > Posicion2.y THEN
+			(* Movimiento hacia abajo *)
+				IF Actual.x < Posicion2.x THEN
+				(* Movimiento a la derecha *)
+					Actual.x := Actual.x + 1;
+					Actual.y := Actual.y - 1;
+					WHILE (Actual.x < Posicion2.x) AND (Actual.y > Posicion2.y) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.x := Actual.x + 1;
+						Actual.y := Actual.y - 1;
+					END;
+					RETURN TRUE;
+				ELSIF Actual.x > Posicion2.x THEN
+				(* Movimiento a la izquierda *)
+					Actual.x := Actual.x - 1;
+					Actual.y := Actual.y - 1;
+					WHILE (Actual.x > Posicion2.x) AND (Actual.y > Posicion2.y) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.x := Actual.x - 1;
+						Actual.y := Actual.y - 1;
+					END;
+					RETURN TRUE;
+				ELSE
+				(* Movimiento vertical *)
+					Actual.y := Actual.y - 1;
+					WHILE (Actual.y > Posicion2.y) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.y := Actual.y - 1;
+					END;
+					RETURN TRUE;
+				END;
+			ELSE
+			(* Movimiento lateral *)
+				IF Actual.x < Posicion2.x THEN
+				(* Movimiento a la derecha *)
+					Actual.x := Actual.x + 1;
+					WHILE (Actual.x < Posicion2.x) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.x := Actual.x + 1;
+					END;
+					RETURN TRUE;
+				ELSE
+				(* Movimiento a la izquierda *)
+					Actual.x := Actual.x - 1;
+					WHILE (Actual.x > Posicion2.x) DO
+					(* Mientras no se haya llegado a la posición final *)
+						IF Tablero.Casilla[Actual.x, Actual.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+						(* Se incrementa la posición *)
+						Actual.x := Actual.x - 1;
+					END;
+					RETURN TRUE;
+				END;
+			END;
+		ELSIF Posicion1.y = Posicion2.y THEN
+		(* La jugada puede ser un enroque *)
+			IF (Posicion1.x + 2) = Posicion2.x THEN
+			(* Enroque a la derecha *)
+				FOR Indice := (Posicion1.x + 1) TO (Tablero.Ancho - 1) DO
+						IF Tablero.Casilla[Indice, Posicion1.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+				END;
+				(* Si no hay obstáculos entre la torre y el rey *)
+				RETURN TRUE;
+			ELSIF (Posicion1.x - 2) = Posicion2.x THEN
+			(* Enroque a la izquierda *)
+				FOR Indice := (Posicion1.x - 1) TO 2 BY -1 DO
+						IF Tablero.Casilla[Indice, Posicion1.y].Pieza # VACIA THEN
+						(* Comprobación de que no haya obstáculo *)
+							RETURN FALSE;
+						END;
+				END;
+				(* Si no hay obstáculos entre la torre y el rey *)
+				RETURN TRUE;
+			ELSE
+			(* Si no es un enroque *)
+				RETURN TRUE;
+			END;
+		ELSE
+		(* La pieza es el rey y como sólo se mueve una posición no puede haber obstáculos *)
+			RETURN TRUE;
+		END;
+	ELSE
+	(* Si la pieza es un caballo, no hace falta comprobación *)
+		RETURN TRUE;
+	END;
+END CaminoDespejado;
+
+PROCEDURE PosicionRey(Tablero: TipoTablero; Color: TipoColor; VAR Posicion: TipoPosicion);
+(******************************************************************************************************************
+	Devuelve la posición del rey del color elegido.
+******************************************************************************************************************)
+VAR
+	i,j: INTEGER;
+	Encontrado: BOOLEAN;
+
+BEGIN
+	i := 1;
+	Encontrado := FALSE;
+	WHILE (i <= Tablero.Ancho) AND (NOT(Encontrado)) DO
+		j := 1;
+		WHILE (j <= Tablero.Alto) AND (NOT(Encontrado)) DO
+			IF (Tablero.Casilla[i,j].Pieza = REY) AND (Tablero.Casilla[i,j].Color = Color) THEN
+				Posicion.x := i;
+				Posicion.y := j;
+				Encontrado := TRUE;
+			END;
+			j := j + 1;
+		END;
+		i := i + 1;
+	END;
+END PosicionRey;
+
+PROCEDURE ReyEnJaque(Tablero: TipoTablero; Color: TipoColor):BOOLEAN;
+(******************************************************************************************************************
+	Devuelve TRUE en caso de que el rey elegido esté en jaque y FALSE en caso contrario.
+******************************************************************************************************************)
+VAR
+	Posicion: TipoPosicion;
+BEGIN
+	PosicionRey(Tablero, Color, Posicion);
+	IF PiezaAmenazada (Posicion, Tablero) THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE
+	END;
+END ReyEnJaque;
+
+PROCEDURE ReyEnJaque2(Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero; Color: TipoColor):BOOLEAN;
+(******************************************************************************************************************
+	Devuelve TRUE si tras la jugada de posición 1 a posición 2 el rey está enjaque y FALSE en caso contrario.
+******************************************************************************************************************)
+VAR
+	TableroTemp: TipoTablero;
+BEGIN
+	CopiarTablero (Tablero,TableroTemp);
+	MoverPieza (Posicion1, Posicion2, TableroTemp, FALSE, FALSE);
+	IF ReyEnJaque (TableroTemp, Color) THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END ReyEnJaque2;
+
+PROCEDURE MovimientoLegal (Posicion1, Posicion2: TipoPosicion; Tablero: TipoTablero; Debug: BOOLEAN):BOOLEAN;
+(******************************************************************************************************************
+   Devuelve TRUE en caso de que el movimiento sea legal y False en caso contrario.
+
+Se hacen las siguientes comprobaciones:
+-Comprobar que las direcciones no exceden los límites del tablero.
+-Comprobar que las direcciones de origen y destino no son iguales.
+-Comprobar que la dirección de origen no está vacía.
+-Comprobar que la dirección de destino no contiene una pieza del mismo color.
+-Comprobar que la dirección del movimiento es posible.
+-Comprobar que no existen obstáculos para realizar la jugada.
+** La comprobación de que el rey no está amenazado se hace en "ReyEnJaque2"
+** La poda por estar el rey en jaque se hace en el procedimiento de generación de jugadas
+******************************************************************************************************************)
+BEGIN
+	IF NOT(Debug) THEN
+		IF JugadaEnTablero (Posicion1, Posicion2, Tablero) AND
+		   NOT(PosicionesIguales (Posicion1, Posicion2)) AND
+		   NOT(DireccionVacia (Posicion1, Tablero)) AND
+		   NOT(MismoColor (Posicion1, Posicion2, Tablero)) AND
+		   DireccionValida (Posicion1, Posicion2, Tablero) AND
+		   CaminoDespejado (Posicion1, Posicion2, Tablero) THEN
+				RETURN TRUE
+		ELSE
+			RETURN FALSE;
+		END;
+	ELSE
+		IF JugadaEnTablero (Posicion1, Posicion2, Tablero) THEN
+			WriteString ("Jugada en tablero"); WriteLn;
+			IF NOT(PosicionesIguales (Posicion1, Posicion2)) THEN
+				WriteString ("Posiciones de origen y destino distintas"); WriteLn;
+				IF NOT(DireccionVacia (Posicion1, Tablero)) THEN
+					WriteString ("Dirección vacía"); WriteLn;
+					IF NOT(MismoColor (Posicion1, Posicion2, Tablero)) THEN
+						WriteString ("El origen y destino no contienen piezas del mismo color"); WriteLn;
+						IF DireccionValida (Posicion1, Posicion2, Tablero) THEN
+							WriteString ("Dirección válida"); WriteLn;
+							IF CaminoDespejado (Posicion1, Posicion2, Tablero) THEN
+								WriteString ("Camino despejado"); WriteLn;
+								WriteString ("Movimiento legal"); WriteLn;
+								RETURN TRUE
+							ELSE
+								WriteString ("Camino bloqueado"); WriteLn;
+								RETURN FALSE;
+							END;
+						ELSE
+							WriteString ("Dirección no válida"); WriteLn;
+							RETURN FALSE;
+						END;
+					ELSE
+						WriteString ("El origen y destino contienen piezas del mismo color"); WriteLn;
+						RETURN FALSE;
+					END;
+				ELSE
+					WriteString ("La dirección de origen tiene una pieza"); WriteLn;
+					RETURN FALSE;
+				END;
+			ELSE
+				WriteString ("Posiciones de origen y destino iguales"); WriteLn;
+				RETURN FALSE;
+			END;
+		ELSE
+			WriteString ("Jugada fuera del tablero"); WriteLn;
+			RETURN FALSE;
+		END;
+	END;
+END MovimientoLegal;
+
+PROCEDURE PuntuacionTablero(Tablero: TipoTablero; Jugador: TipoColor):INTEGER;
+(******************************************************************************************************************
+   Función que estima la bondad de una situación del tablero para un Jugador.
+
+100 por cada peon,
+315 por cada caballo, 
+330 por cada alfil, 
+500 por cada torre, 
+940 por cada dama,
+máximo por el rey,
+1 punto por cada casilla a la que se puedan mover los alfiles, 
+1 punto por cada casilla a la que se puedan mover las torres, 
+Da mayor puntuación el mover los peones centrales (casillas avanzadas * posición(1 lateral a 4 central)), 
+De 0 hasta 9 gradualmente por la posicion de cada caballo (desde un rincon del tablero hasta el centro), 
+De 0 a 9 gradualmente por la posicion de la dama (desde un rincon hasta el centro), 
+-20 por peon doblado, 
+bonus gradual para la posicion del rey, en la apertura mientras más cerca del centro es más malo y en los finales de partida (poco material) al revés. 
+******************************************************************************************************************)
+	PROCEDURE Auxiliar1(num: INTEGER):INTEGER;
+	(* 
+		Devuelve números de forma ascendente hasta la mitad (Ancho) y descendentes a partir de la mitad. P.ej.:
+		1 2 3 4 4 3 2 1 ...
+	*)
+	BEGIN
+		IF num > (Tablero.Ancho DIV 2) THEN
+			RETURN (Tablero.Ancho + 1 - num);
+		ELSE
+			RETURN num;
+		END;
+	END Auxiliar1;
+
+	PROCEDURE Auxiliar2(num: INTEGER):INTEGER;
+	(*
+		Devuelve números de forma ascendente hasta la mitad (Alto) y descendentes a partir de la mitad. P.ej.:
+		1 2 3 4 4 3 2 1 ...
+	*)
+	BEGIN
+		IF num > (Tablero.Alto DIV 2) THEN
+			RETURN (Tablero.Alto + 1 - num);
+		ELSE
+			RETURN num;
+		END;
+	END Auxiliar2;
+
+	PROCEDURE Centrado(x,y: INTEGER):INTEGER;
+	(*
+		Devuelve un número que representa lo centrada que está una pieza:
+
+		00000000
+		01111110
+		01222210
+		01233210
+		01233210
+		01222210
+		01111110
+		00000000
+
+	*)
+	VAR
+		valx, valy: INTEGER;
+	BEGIN
+		valx := Auxiliar1(x);
+		valy := Auxiliar1(y);
+		IF valx < valy THEN
+			RETURN valx - 1;
+		ELSE
+			RETURN valy - 1;
+		END;
+	END Centrado;
+
+VAR
+	reyblanco, reynegro: BOOLEAN;
+	i, j, Puntuacion: INTEGER;
+	Origen, Destino: TipoPosicion;
+BEGIN
+	Puntuacion := 0;
+	reyblanco := FALSE;
+	reynegro := FALSE;
+	FOR j := 1 TO Tablero.Alto DO
+		FOR i := 1 TO Tablero.Ancho DO
+			IF Tablero.Casilla[i,j].Color = Jugador THEN
+				CASE Tablero.Casilla[i,j].Pieza OF
+					PEON:
+						Puntuacion := Puntuacion + 100;
+
+						(* Puntuación por posición *)
+						IF Tablero.Casilla[i,j].Color = BLANCO THEN
+							Puntuacion := Puntuacion + (j * (Auxiliar1(i))) - 2;
+
+							(* Puntuación menor por peón doblado *)
+							Origen.x := i;
+							Origen.y := j;
+							REPEAT
+								Origen.y := Origen.y + 1;
+							UNTIL (Origen.y = Tablero.Alto) OR 
+								((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND
+								(Tablero.Casilla[Origen.x,Origen.y].Color = BLANCO));
+							IF ((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND 
+								(Tablero.Casilla[Origen.x,Origen.y].Color = BLANCO)) THEN
+								Puntuacion := Puntuacion - 20;
+							END
+
+
+						ELSE
+
+							Puntuacion :=  Puntuacion + ((Tablero.Alto + 1 - j) * (Auxiliar1(i))) - 2;
+
+							(* Puntuación menor por peón doblado *)
+							Origen.x := i;
+							Origen.y := j;
+							REPEAT
+								Origen.y := Origen.y - 1;
+							UNTIL (Origen.y = 1) OR
+							((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND
+							(Tablero.Casilla[Origen.x,Origen.y].Color = NEGRO));
+							IF ((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND 
+								(Tablero.Casilla[Origen.x,Origen.y].Color = NEGRO)) THEN
+								Puntuacion := Puntuacion - 20;
+							END;
+
+
+						END;
+
+
+					|
+					TORRE:
+						Puntuacion := Puntuacion + 500;
+					(* Bonificación por posibilidad de movimiento *)
+					Origen.x := i;
+					Origen.y := j;
+
+					(* Arriba *)
+					Destino.x := Origen.x;
+					Destino.y := Origen.y + 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.y := Destino.y + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Abajo *)
+					Destino.x := Origen.x;
+					Destino.y := Origen.y - 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.y := Destino.y - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Izquierda *)
+					Destino.x := Origen.x - 1;
+					Destino.y := Origen.y;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.x := Destino.x - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+
+					(* Derecha *)
+					Destino.x := Origen.x + 1;
+					Destino.y := Origen.y;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.x := Destino.x + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+					|
+					ALFIL:
+						Puntuacion := Puntuacion + 330;
+
+					(* Bonificación por posibilidad de movimiento *)
+					Origen.x := i;
+					Origen.y := j;
+
+					(* Arriba-Izquierda *)
+					Destino.x := Origen.x - 1;
+					Destino.y := Origen.y + 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.x := Destino.x - 1;
+						Destino.y := Destino.y + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+
+					(* Arriba-Derecha *)
+					Destino.x := Origen.x + 1;
+					Destino.y := Origen.y + 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.x := Destino.x + 1;
+						Destino.y := Destino.y + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Abajo-Izquierda *)
+					Destino.x := Origen.x - 1;
+					Destino.y := Origen.y - 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.x := Destino.x - 1;
+						Destino.y := Destino.y - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Abajo-Derecha *)
+					Destino.x := Origen.x + 1;
+					Destino.y := Origen.y - 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion + 1;
+						Destino.x := Destino.x + 1;
+						Destino.y := Destino.y - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+					|
+					CABALLO:
+						Puntuacion := Puntuacion + 315;
+						Puntuacion := Puntuacion + (3 * Centrado(i,j));
+					|
+					DAMA:
+						Puntuacion := Puntuacion + 940;
+						Puntuacion := Puntuacion + (3 * Centrado(i,j));
+					|
+					REY:
+						IF Tablero.Casilla[i,j].Color = BLANCO THEN
+							reyblanco := TRUE;
+						ELSE
+							reynegro := TRUE;
+						END;
+					|
+				ELSE
+					(* Casilla vacía *)
+				END;
+			ELSE
+				CASE Tablero.Casilla[i,j].Pieza OF
+					PEON:
+						Puntuacion := Puntuacion - 100;
+
+						(* Puntuación por posición *)
+						IF Tablero.Casilla[i,j].Color = BLANCO THEN
+							Puntuacion := Puntuacion - ((j * (Auxiliar1(i)) - 2));
+
+							(* Puntuación mayor por peón doblado *)
+							Origen.x := i;
+							Origen.y := j;
+							REPEAT
+								Origen.y := Origen.y + 1;
+							UNTIL (Origen.y = Tablero.Alto) OR
+							((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND
+							(Tablero.Casilla[Origen.x,Origen.y].Color = BLANCO));
+							IF ((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND
+								(Tablero.Casilla[Origen.x,Origen.y].Color = BLANCO)) THEN
+							Puntuacion := Puntuacion + 20;
+							END;
+
+
+
+						ELSE
+							Puntuacion :=  Puntuacion - (((Tablero.Alto + 1 - j) * (Auxiliar1(i))) - 2);
+
+							(* Puntuación mayor por peón doblado *)
+							Origen.x := i;
+							Origen.y := j;
+							REPEAT
+								Origen.y := Origen.y - 1;
+							UNTIL (Origen.y = 1) OR
+							((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND
+							(Tablero.Casilla[Origen.x,Origen.y].Color = NEGRO));
+							IF ((Tablero.Casilla[Origen.x,Origen.y].Pieza = PEON) AND
+								(Tablero.Casilla[Origen.x,Origen.y].Color = NEGRO)) THEN
+								Puntuacion := Puntuacion + 20;
+							END;
+
+						END;
+
+
+					|
+					TORRE:
+						Puntuacion := Puntuacion - 500;
+
+					(* Penalización por posibilidad de movimiento *)
+					Origen.x := i;
+					Origen.y := j;
+
+					(* Arriba *)
+					Destino.x := Origen.x;
+					Destino.y := Origen.y + 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.y := Destino.y + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Abajo *)
+					Destino.x := Origen.x;
+					Destino.y := Origen.y - 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.y := Destino.y - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Izquierda *)
+					Destino.x := Origen.x - 1;
+					Destino.y := Origen.y;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.x := Destino.x - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+
+					(* Derecha *)
+					Destino.x := Origen.x + 1;
+					Destino.y := Origen.y;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.x := Destino.x + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+					|
+					ALFIL:
+						Puntuacion := Puntuacion - 330;
+
+					(* Bonificación por posibilidad de movimiento *)
+					Origen.x := i;
+					Origen.y := j;
+
+					(* Arriba-Izquierda *)
+					Destino.x := Origen.x - 1;
+					Destino.y := Origen.y + 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.x := Destino.x - 1;
+						Destino.y := Destino.y + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+
+					(* Arriba-Derecha *)
+					Destino.x := Origen.x + 1;
+					Destino.y := Origen.y + 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.x := Destino.x + 1;
+						Destino.y := Destino.y + 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+		
+					(* Abajo-Izquierda *)
+					Destino.x := Origen.x - 1;
+					Destino.y := Origen.y - 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.x := Destino.x - 1;
+						Destino.y := Destino.y - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+
+					(* Abajo-Derecha *)
+					Destino.x := Origen.x + 1;
+					Destino.y := Origen.y - 1;
+					WHILE MovimientoLegal (Origen, Destino, Tablero, FALSE) DO
+					(* Mientras la jugada no sea ilegal *)
+						Puntuacion := Puntuacion - 1;
+						Destino.x := Destino.x + 1;
+						Destino.y := Destino.y - 1;
+						(* Probar la siguiente posición *)
+					END;
+					(**********)
+					|
+					CABALLO:
+						Puntuacion := Puntuacion - 315;
+						Puntuacion := Puntuacion - (3 * Centrado(i,j));
+					|
+					DAMA:
+						Puntuacion := Puntuacion - 940;
+						Puntuacion := Puntuacion - (3 * Centrado(i,j));
+					|
+					REY:
+						IF Tablero.Casilla[i,j].Color = BLANCO THEN
+							reyblanco := TRUE;
+						ELSE
+							reynegro := TRUE;
+						END;
+					|
+				ELSE
+					(* Casilla vacía *)
+				END;
+			END;
+		END;
+	END;
+	IF NOT(reyblanco) THEN
+		IF Jugador = NEGRO THEN
+			Puntuacion := MAX(INTEGER);
+		ELSE
+			Puntuacion := MIN(INTEGER);
+		END;
+	ELSE
+		IF NOT(reynegro) THEN
+			IF Jugador = BLANCO THEN
+				Puntuacion := MAX(INTEGER);
+			ELSE
+				Puntuacion := MIN(INTEGER);
+			END;
+		END;
+	END;
+	RETURN Puntuacion	
+END PuntuacionTablero;
+
+(**************************************************************************************************************)
+(**************************************************************************************************************)
+
+
+(**************************************************************************************************************)
+(*****************************    Funciones para representación en modo texto      ****************************)
+(**************************************************************************************************************)
+
+PROCEDURE ImprimirTablero (Tablero: TipoTablero; Debug: BOOLEAN);
+(******************************************************************************************************************
+   Imprime un tablero en la salida estandar.
+   Si Debug es TRUE, muestra información adicional:
+	alto, ancho, última jugada y piezas (reyes y torres) movidas.
+******************************************************************************************************************)
+(* Leer casillas *)
+CONST
+	(* Si numeración es TRUE, se muestran las coordenadas *)
+	Numeracion=TRUE;
+VAR
+	i, j: INTEGER; (* Índices para la matriz *)
+	Temp: CHAR; (* Almacenamiento temporal para el tipo de pieza *)
+BEGIN
+	WriteLn;
+	FOR j := (Tablero.Alto) TO 1 BY -1 DO
+		IF Numeracion THEN
+			WriteInt (j, 2);
+		END;
+		WriteString("   ");
+		FOR i := 1 TO Tablero.Ancho DO
+			CASE Tablero.Casilla[i, j].Pieza OF
+				REY:
+					IF Tablero.Casilla[i, j].Color = NEGRO THEN
+						Write('R');
+					ELSE
+						Write('r');
+					END;
+				|
+				DAMA:
+					IF Tablero.Casilla[i,j].Color = NEGRO THEN
+						Write('D');
+					ELSE
+						Write('d');
+					END;
+				|
+				TORRE:
+					IF Tablero.Casilla[i,j].Color = NEGRO THEN
+						Write('T');
+					ELSE
+						Write('t');
+					END;
+				|
+				ALFIL:
+					IF Tablero.Casilla[i,j].Color = NEGRO THEN
+						Write('A');
+					ELSE
+						Write('a');
+					END;
+				|
+				CABALLO:
+					IF Tablero.Casilla[i,j].Color = NEGRO THEN
+						Write('C');
+					ELSE
+						Write('c');
+					END;
+				|
+				PEON:
+					IF Tablero.Casilla[i,j].Color = NEGRO THEN
+						Write('P');
+					ELSE
+						Write('p');
+					END;
+				|
+			ELSE
+			(* Casilla vacía *)
+				Write('V');
+			END;
+		END;
+		WriteLn;
+	END;
+	IF Numeracion THEN
+		(* Escribe la numeración inferior *)
+		WriteLn;
+		WriteString ("     ");
+		FOR i := 1 TO Tablero.Ancho DO
+			WriteInt (i, 1);
+		END;
+	END;
+	WriteLn;
+	WriteLn;
+	IF Debug THEN
+		WriteString ("Alto: ");
+		WriteInt (Tablero.Alto, 4);
+		WriteLn;
+		WriteString ("Ancho: ");
+		WriteInt (Tablero.Ancho, 3);
+		WriteLn;
+		WriteString ("La última jugada fue: ");
+		WriteInt(Tablero.UltimoMovimiento.Origen.x,1);
+		WriteInt(Tablero.UltimoMovimiento.Origen.y,1);
+		WriteInt(Tablero.UltimoMovimiento.Destino.x,1);
+		WriteInt(Tablero.UltimoMovimiento.Destino.y,1);
+		WriteLn;
+		WriteString("Puntuación del tablero para el último jugador");
+		WriteLn;
+		WriteString("Piezas relevantes movidas: ");
+		WriteLn;
+		WriteString("ReyBlanco  TorreBlancaIzquierda  TorreBlancaDerecha");
+		WriteLn;
+		IF Tablero.ReyBlancoMovido THEN
+			WriteInt(1, 4);
+		ELSE
+			WriteInt(0, 4);
+		END;
+		IF Tablero.TorreIBlancaMovida THEN
+			WriteInt(1, 17);
+		ELSE
+			WriteInt(0, 17);
+		END;
+		IF Tablero.TorreDBlancaMovida THEN
+			WriteInt(1, 20);
+		ELSE
+			WriteInt(0, 20);
+		END;
+		WriteLn;
+		WriteString("ReyNegro   TorreNegraIzquierda   TorreNegraDerecha");
+		WriteLn;
+		IF Tablero.ReyNegroMovido THEN
+			WriteInt(1, 4);
+		ELSE
+			WriteInt(0, 4);
+		END;
+		IF Tablero.TorreINegraMovida THEN
+			WriteInt(1, 17);
+		ELSE
+			WriteInt(0, 17);
+		END;
+		IF Tablero.TorreDNegraMovida THEN
+			WriteInt(1, 20);
+		ELSE
+			WriteInt(0, 20);
+		END;
+		WriteLn;
+		WriteLn;
+      WriteLn;
+	END;
+END ImprimirTablero;
+
+PROCEDURE TextoANumero (Texto: ARRAY OF CHAR; NumDigitos: INTEGER): INTEGER;
+(******************************************************************************************************************
+   Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
+   cada uno corresponde a una coordenada, dos de origen y dos de destino.
+   No se hacen comprobaciones.
+******************************************************************************************************************)
+VAR
+	i, numero, total: INTEGER;
+BEGIN
+	total := 0;
+	FOR i := 0 TO NumDigitos DO
+		IF (ORD ('0') < ORD (Texto[i])) AND (ORD (Texto[i]) < ORD ('9')) THEN
+			numero := ORD (Texto[i]) - ORD ('0');
+			total := numero + (total * 10);
+		END;
+	END;
+	RETURN total;
+END TextoANumero;
+
+
+PROCEDURE LeerMovimiento (VAR Movimiento: TipoMovimiento);
+(******************************************************************************************************************
+   Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
+   cada uno corresponde a una coordenada, dos de origen y dos de destino.
+   No se hacen comprobaciones.
+******************************************************************************************************************)
+CONST
+	MAXBUFFER = 4;
+VAR
+	Buffer: ARRAY [0..MAXBUFFER] OF CHAR;
+BEGIN
+	ReadString(Buffer);
+	Movimiento.Origen.x := TextoANumero (Buffer, MAXBUFFER);
+	ReadString(Buffer);
+	Movimiento.Origen.y := TextoANumero (Buffer, MAXBUFFER);
+	ReadString(Buffer);
+	Movimiento.Destino.x := TextoANumero (Buffer, MAXBUFFER);
+	ReadString(Buffer);
+	Movimiento.Destino.y := TextoANumero (Buffer, MAXBUFFER);
+END LeerMovimiento;
+
+
+PROCEDURE ElegirPieza (VAR Pieza: TipoPieza);
+(******************************************************************************************************************
+   Muestra el menú de selección de pieza
+******************************************************************************************************************)
+VAR
+	Letra: CHAR;
+BEGIN
+	WriteString("Promoción del peón");
+	WriteLn;
+	(* Mostrar piezas *)
+	WriteString("Elige una pieza entre las siguientes: D A C T");
+	WriteLn;
+	Read(Letra);
+	(* Lee el último salto de linea *)
+	Read(Letra);
+	CASE Letra OF
+		'D': Pieza := DAMA; |
+		'A': Pieza := ALFIL; |
+		'C': Pieza := CABALLO; |
+		'T': Pieza := TORRE |
+		'd': Pieza := DAMA; |
+		'a': Pieza := ALFIL; |
+		'c': Pieza := CABALLO; |
+		't': Pieza := TORRE |
+	ELSE
+	WriteString("Elige una letra válida");
+	WriteLn;
+	ElegirPieza (Pieza);
+	END;
+END ElegirPieza;
+
+(**************************************************************************************************************)
+(**************************************************************************************************************)
+
+END TDATablero.
+

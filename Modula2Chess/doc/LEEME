@@ -1,0 +1,61 @@
+*** Ajedrez ***
+Por Javier Callón Álvarez
+jcallon@lycos.es
+
+LICENCIA
+Este programa se distribuye bajo licencia GPL.
+(http://www.gnu.org/licenses/gpl.html)
+Se puede encontrar una copia de la licencia en el archivo COPYING.
+
+DESCRIPCIÓN
+Juego de ajedrez para un jugador contra el computador. 
+Se incluyen versiones para sdl (con interfaz gráfica) y en modo texto.
+Las opciones de ejecución son:
+-Método de generación de jugadas:
+	1: alfa-beta (Opción por defecto)
+	2: MINIMAX
+	3: alfa-beta y MINIMAX (útil para hacer una comparación de eficiencia)
+-Tablero:
+	Archivo de tablero: por defecto default.dat
+
+TEXTO
+El manejo de esta interfaz se hace mediante las coordenadas separadas por 
+espacios para especificar las casillas p.ej. 2 2 2 3 movería el peón de la 
+posición 2,2 a la posición 2,3.
+Las piezas están representadas de la siguiente forma:
+'P' : Peón.
+'T' : Torre.
+'C' : Caballo.
+'A' : Alfil.
+'D' : Dama.
+'R' : Rey.
+Se representan con mayúsculas las piezas negras y con minúsculas las piezas 
+blancas. Los espacios vacíos se representan con 'V'.
+Para un enroque, se debe mover el rey dos posiciones en la dirección 
+seleccionada.
+En la promoción del peón se elige la pieza escribiendo su letra.
+Para salir del juego, pulsar "control" y "c" simultaneamente.
+
+AYUDA DE COMPILACIÓN
+Este programa está compilado usando 
+ MOCKA 9905 (http://www.info.uni-karlsruhe.de/~modula/)
+ gcc 2.95.4 (http://gcc.gnu.org)
+ Debian Linux 3.0.0r1 (http://www.debian.org)
+No ha sido probado bajo MS-DOS y es posible que no funcione bajo este
+sistema por los requisitos de memoria.
+
+POR HACER
+* Una mejor función de evaluación.
+* Comprobación de la situación de "tablas".
+* Generación en orden aleatorioaleatoria de las jugadas posibles a partir de 
+una dada para evitar la repetición de las jugadas en dos partidas iguales.
+* Corregir un error al no ser posible comer al paso un peón tras haber 
+igualado su posición al avanzar dos casillas (el peón a comer).
+* Una interfaz más amigable con opción de reincio, jugada anterior, deshacer 
+jugada...
+* Salir de la versión en modo texto de un modo más "limpio" sin necesidad de 
+pulsar control + c simultaneamente.
+* Un README más completo...
+* ¿Juego en red? :)
+* Traducción a inglés.
+

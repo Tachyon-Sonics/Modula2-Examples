@@ -1,0 +1,198 @@
+(*
+    Copyright 2003 Javier Callón Álvarez
+
+    This file is part of Modula2Chess.
+
+    Modula2Chess is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    any later version.
+
+    Modula2Chess is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Modula2Chess; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*)
+IMPLEMENTATION MODULE TDALista;
+FROM InOut IMPORT WriteInt, WriteString, WriteLn;
+FROM Storage IMPORT ALLOCATE, DEALLOCATE;
+FROM TDATablero IMPORT ImprimirTablero;
+
+TYPE 
+	TipoBasura = RECORD
+		elemento: ARRAY [1..1000000] OF TipoElemento;
+		ultimo: INTEGER;
+		END;
+VAR
+	(* Aquí se guardarán todos los nodos que se vayan referenciando para liberarlos al terminar *)
+	(* BASURA será un dato de tipo encapsulado *)
+	BASURA: TipoBasura;		
+
+(* Procedimientos para recoger la basura *)
+
+PROCEDURE InicializarBasura();
+(* Función que "Devuelve una basura vacía") *)
+BEGIN
+   BASURA.ultimo := 0;
+END InicializarBasura;
+
+PROCEDURE AnadirBasura(x: TipoElemento);
+(* Añade el elemento a la basura *)
+BEGIN
+	BASURA.elemento[BASURA.ultimo + 1] := x;
+	BASURA.ultimo := BASURA.ultimo + 1;
+END AnadirBasura;
+
+PROCEDURE SuprimirBasura();
+(* Elimina un elemento de la basura *)
+VAR
+   i: INTEGER;
+BEGIN
+	DISPOSE(BASURA.elemento[BASURA.ultimo]);
+   BASURA.ultimo := BASURA.ultimo - 1;
+END SuprimirBasura;
+
+PROCEDURE VaciaBasura(): BOOLEAN;
+(* Comprueba que en la lista hay algún elemento *)
+BEGIN
+   IF BASURA.ultimo = 0 THEN
+      RETURN TRUE;
+   ELSE
+      RETURN FALSE;
+   END;
+END VaciaBasura;
+
+PROCEDURE RecolectorDeBasura();
+BEGIN
+	WHILE NOT(VaciaBasura()) DO
+		SuprimirBasura();
+	END;
+END RecolectorDeBasura;
+
+PROCEDURE CantidadBasura();
+BEGIN
+	WriteString("La cantidad de basura es "); WriteInt(BASURA.ultimo,1); WriteLn;
+END CantidadBasura;
+
+
+
+
+(* Procedimientos generales *)
+
+PROCEDURE Insertar(VAR L: TipoLista; x : TipoElemento; p: INTEGER);
+(* Inserta un elemento, x, en una posicion p de L, pasando los elementos
+ de la posicion p y siguientes a la posicion inmediatamente posterior *)
+VAR
+  i: INTEGER;
+BEGIN
+	FOR i := L.ultimo + 1 TO p + 1 BY -1 DO
+		L.elemento[i] := L.elemento[i - 1];
+	END;
+	L.elemento[p] := x;
+	L.ultimo := L.ultimo + 1;
+	AnadirBasura(x);
+END Insertar;
+
+PROCEDURE Recuperar(VAR L: TipoLista; VAR x : TipoElemento;p: INTEGER;
+VAR encontrado:BOOLEAN);
+(* Encuentra el elemento x que esta en la posicion p, si la posicion p es
+mayor que el numero de elementos de L, devuelve a encontrado FALSE *)
+VAR
+   i: INTEGER;
+BEGIN
+	IF p > L.ultimo THEN
+		encontrado := FALSE;
+	ELSE
+		x := L.elemento[p];
+		encontrado := TRUE;
+	END;
+END Recuperar;
+
+PROCEDURE Suprimir(VAR L: TipoLista; p: INTEGER);
+(* Elimina de L el elemento de la posicion p *)
+VAR
+	i: INTEGER;	
+BEGIN
+	FOR i := p TO L.ultimo DO
+		L.elemento[i] := L.elemento[i + 1];
+	END;
+	L.ultimo := L.ultimo - 1;
+END Suprimir;
+
+PROCEDURE Anula(VAR L: TipoLista);
+(* Vacía L *)
+BEGIN
+	L.ultimo := 0;
+END Anula;
+
+PROCEDURE Primero(VAR L: TipoLista; VAR x: TipoElemento);
+(* De vuelve el primer elemento de L *)
+BEGIN
+	x := L.elemento[1];
+END Primero;
+
+PROCEDURE Ultimo(VAR L: TipoLista; VAR x: TipoElemento);
+(* Devuelve el ultimo elemento de L *)
+BEGIN
+	x := L.elemento[L.ultimo];
+END Ultimo;
+
+PROCEDURE InicializarLista(VAR L: TipoLista);
+(* Función que "Devuelve una lista vacía") *)
+BEGIN
+	L.ultimo := 0;
+END InicializarLista;
+
+PROCEDURE AnadirFIFO(x: TipoElemento; VAR L: TipoLista);
+(* Añade el elemento x al final de la lista L (cola) *)
+BEGIN
+	Insertar(L,x,L.ultimo + 1);
+END AnadirFIFO;
+
+PROCEDURE AnadirLIFO(x: TipoElemento; VAR L: TipoLista);
+(* Añade el elemento x al principio de la lista L (pila) *)
+BEGIN
+	Insertar(L,x,1);
+END AnadirLIFO;
+
+PROCEDURE Resto(VAR L: TipoLista);
+(* Elimina el primer elemento de la lista *)
+BEGIN
+	Suprimir(L, 1);
+END Resto;
+
+PROCEDURE Vacia(VAR L: TipoLista): BOOLEAN;
+(* Comprueba que en la lista hay algún elemento *)
+BEGIN
+	IF L.ultimo = 0 THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END;
+END Vacia;
+
+PROCEDURE Elemento(p: INTEGER; VAR L: TipoLista; VAR e: TipoElemento);
+(* Consulta el elemento de la posición p de la lista sin modificarla *)
+VAR
+	x: TipoElemento;
+	encontrado: BOOLEAN;
+BEGIN
+	Recuperar(L,x,p,encontrado);
+	IF encontrado=TRUE THEN
+		e := x;
+	END;
+END Elemento;
+
+BEGIN 
+	InicializarBasura();
+END TDALista.
+
+
+
+
+
+

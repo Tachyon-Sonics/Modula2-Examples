@@ -1,0 +1,226 @@
+(*
+    Copyright 2003 Javier Callón Álvarez
+
+    This file is part of Modula2Chess.
+
+    Modula2Chess is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    any later version.
+
+    Modula2Chess is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Modula2Chess; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*)
+MODULE Modula2Chess;
+FROM InOut IMPORT WriteString, WriteInt, WriteLn;
+FROM TDATablero IMPORT TipoTablero, TipoMovimiento, LeerTablero,
+                       ImprimirTablero, LeerMovimiento, MovimientoLegal, MoverPieza,
+                       EsMate, JaqueMate, TipoColor, ReyEnJaque2;
+FROM TDALista IMPORT RecolectorDeBasura;
+FROM IA IMPORT Jugada;
+FROM Arguments IMPORT GetArgs, ArgTable;
+
+CONST
+	DEBUG = FALSE;
+
+VAR
+   numarg: SHORTCARD;
+	Argumento: ARRAY [0..64] OF CHAR;
+	Tablero: TipoTablero;
+	Movimiento: TipoMovimiento;
+	EnJuego: BOOLEAN;
+	metodo: INTEGER;
+	NADA: BOOLEAN;
+
+PROCEDURE LeerArgumento(numero: INTEGER; VAR texto: ARRAY OF CHAR):BOOLEAN;
+(***************************************************************
+Coge el argumento número "ArgumentoNumero" en una matriz de 0 a
+MaxCaracteres devolviendo error si no existste ese argumento 
+ ***************************************************************)
+CONST
+	MaxCaracteres=64;
+
+VAR
+	numarg, max: SHORTCARD;
+	argumento: ArgTable;
+	n: INTEGER;
+	error: BOOLEAN;
+
+BEGIN
+	error := FALSE;
+	max := numero;
+	GetArgs(numarg, argumento);
+	IF (numarg - 1) < max THEN
+		error :=TRUE;
+	ELSE
+		FOR n:=0 TO MaxCaracteres DO
+			texto[n]:=argumento^[numero]^[n];
+		END;
+	END;
+	RETURN error;
+END LeerArgumento;
+
+BEGIN
+
+EnJuego := TRUE;
+
+(* Versión y autor *) 
+WriteString("*******AJEDREZ 1.0*******"); 
+WriteLn;
+WriteString("Por Javier Callón Álvarez");
+WriteLn;
+WriteString("*************************");
+WriteLn;
+
+(* Si no se han escrito argumentos *)
+IF LeerArgumento(1, Argumento) THEN
+	WriteString("Uso: ");
+	WriteLn;
+	WriteString("   ");
+	EnJuego := LeerArgumento(0, Argumento);
+	WriteString(Argumento);
+	EnJuego := LeerArgumento(1, Argumento);
+	WriteString(" Método Tablero");
+	WriteLn;
+	WriteString("Método: ");
+	WriteLn;
+	WriteString("   1: ALFA-BETA");
+	WriteLn;
+	WriteString("   2: MINIMAX ");
+	WriteLn;
+	WriteString("   3: MINIMAX y ALFA-BETA ");
+	WriteLn;
+	WriteString("Tablero: ");
+	WriteLn;
+	WriteString("   Archivo de tablero");
+	WriteLn;
+	WriteString("Tomando valores por defecto...");
+	WriteLn;
+	metodo := 1;
+	IF LeerTablero (Tablero, "default.dat") THEN
+		WriteString("No se puede abrir el archivo default.dat");
+		WriteLn;
+   	EnJuego := FALSE;
+	END;
+ELSE 
+	IF Argumento[0] = '1' THEN
+		metodo := 1;
+		WriteString("Método ALFA-BETA ");
+		WriteLn;
+	ELSIF Argumento[0] = '2' THEN
+		metodo := 2;
+		WriteString("Método MINIMAX ");
+		WriteLn;
+	ELSIF Argumento[0] = '3' THEN
+		metodo := 3;
+		WriteString("Método MINIMAX y ALFA-BETA ");
+		WriteLn;
+	ELSE
+		EnJuego := FALSE;
+		WriteString("Método no válido.");
+		WriteLn;
+	END;
+	IF EnJuego AND NOT(LeerArgumento(2, Argumento)) THEN
+		IF LeerTablero (Tablero, Argumento) THEN
+			WriteString("No se puede abrir el archivo ");
+			WriteString(Argumento);
+			WriteLn;
+   		EnJuego := FALSE;
+		END;
+	ELSIF EnJuego THEN
+		IF LeerTablero (Tablero, "default.dat") THEN
+			WriteString("No se puede abrir el archivo default.dat");
+			WriteLn;
+			EnJuego := FALSE;
+		END;
+	ELSE
+		EnJuego := FALSE;
+	END;
+END;
+
+
+IF EnJuego THEN
+	WHILE EnJuego DO
+
+		(* Comprobar jaque mate *)
+		ImprimirTablero (Tablero, DEBUG);
+
+		CASE JaqueMate (Tablero, BLANCO) OF
+			1:
+			(* Si el adversario ha dado jaque mate en la anterior jugada... *)
+				WriteString("Jaque Mate!!! Las negras ganan!"); WriteLn;
+				EnJuego := FALSE;
+			|
+			2:
+			(* Rey negro ahogado *)
+				WriteString("Rey negro ahogado!"); WriteLn;
+				EnJuego := FALSE;
+			|
+			ELSE
+			(* La partida continúa*)
+		END;
+		
+
+		IF EnJuego THEN
+	      (* Lee una jugada *)
+   	      WriteString("Siguiente jugada?"); WriteLn;
+      	   LeerMovimiento (Movimiento);
+	
+		
+			IF MovimientoLegal (Movimiento.Origen, Movimiento.Destino, Tablero, DEBUG) AND 
+				(Tablero.Casilla[Movimiento.Origen.x, Movimiento.Origen.y].Color = BLANCO) AND
+				NOT(ReyEnJaque2(Movimiento.Origen, Movimiento.Destino, Tablero, Tablero.Casilla[Movimiento.Origen.x, Movimiento.Origen.y].Color)) THEN
+				MoverPieza (Movimiento.Origen, Movimiento.Destino, Tablero, TRUE, FALSE);
+				(* Si es legal muestra una jugada *)
+				ImprimirTablero (Tablero, DEBUG); WriteLn;
+				(* Si el jugador ha dado jaque mate *)
+				CASE JaqueMate (Tablero, NEGRO) OF
+					1:
+					(* Las blancas ganan*)
+						WriteString("Jaque Mate!!! Las blancas ganan!"); WriteLn;
+						EnJuego := FALSE;
+					|
+					2:
+					(*	Rey negro ahogado *)
+						WriteString("Rey negro ahogado!"); WriteLn;
+						EnJuego := FALSE;
+					|
+					ELSE
+					(* La partida continúa *)
+				END;
+	
+				IF EnJuego THEN
+					(* Juega la máquina *)
+         	   WriteString ("Calculando jugada. Espere, por favor..."); WriteLn;
+					Jugada (Tablero, NEGRO, metodo);
+				END;
+
+			ELSE
+			(* Imprimir mensaje de jugada ilegal *)
+				WriteString ("Movimiento ilegal");
+				WriteLn;
+			END;
+		END;
+	END;
+END;
+
+END Modula2Chess.
+
+
+
+
+
+
+
+
+
+
+
+
+

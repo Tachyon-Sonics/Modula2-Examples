@@ -1,0 +1,1257 @@
+(*
+    Copyright 2003 Javier Callón Álvarez
+
+    This file is part of Modula2Chess.
+
+    Modula2Chess is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    any later version.
+
+    Modula2Chess is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Modula2Chess; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*)
+IMPLEMENTATION MODULE IA;
+FROM InOut IMPORT WriteString, WriteInt, WriteLn;
+FROM TDALista IMPORT TipoLista, Insertar, Recuperar, Suprimir, Anula, Primero, Ultimo, InicializarLista,
+                AnadirFIFO, AnadirLIFO, Resto, Vacia, Elemento, CantidadBasura, RecolectorDeBasura;
+FROM TDATablero IMPORT TipoTablero, TipoNodo, TipoMovimiento, CopiarTablero, LeerTablero,  
+                ImprimirTablero, LeerMovimiento, MovimientoLegal, MoverPieza, TipoColor, 
+                TipoPosicion, TipoPieza, PiezaAmenazada, PuntuacionTablero, EsMate, PosicionRey, ReyEnJaque;
+FROM Storage IMPORT ALLOCATE, DEALLOCATE;
+FROM Clock IMPORT ResetClock, UserTime;
+
+CONST
+	DEBUG = TRUE;
+	MaxNivel = 2;
+
+VAR
+	JugadorMax: TipoColor;
+	JugadorMin : TipoColor;
+	PosicionDePrueba: TipoPosicion;
+	index: INTEGER;
+	Tablero: TipoTablero;
+	Nodo, Nodo1, Nodo2: TipoNodo;
+	JugadasGeneradas: INTEGER;
+	Tiempo: INTEGER;
+	NodosEliminados: INTEGER;
+	
+PROCEDURE CrearNodo (Tablero: TipoTablero):TipoNodo;
+(******************************************************************************************************************
+   Crea un nodo a partir de la posición inicial.
+******************************************************************************************************************)
+VAR
+	Nodo: TipoNodo;
+BEGIN
+	NEW (Nodo);
+	CopiarTablero (Tablero, Nodo^.Tablero);
+	Nodo^.Predecesor := NIL;
+	Nodo^.Nivel := 0;
+	RETURN Nodo;
+END CrearNodo;
+
+
+PROCEDURE EliminarNodo (Nodo: TipoNodo);
+(******************************************************************************************************************
+   Elimina un nodo.
+******************************************************************************************************************)
+BEGIN
+	DISPOSE (Nodo);
+END EliminarNodo;
+
+
+PROCEDURE CrearHijo (PtrTablero1: TipoNodo; VAR PtrTablero2: TipoNodo);
+(******************************************************************************************************************
+   Crea un puntero a una copia del tablero al que apunta PtrTablero1 y hace apuntar el campo Predecesor de la copia
+   al tablero original.
+   Los dos tableros deben tener las mismas dimensiones. (Precondición)
+******************************************************************************************************************)
+BEGIN
+	NEW (PtrTablero2);
+	CopiarTablero (PtrTablero1^.Tablero, PtrTablero2^.Tablero);
+	PtrTablero2^.Nivel := PtrTablero1^.Nivel + 1;
+	PtrTablero2^.Predecesor := PtrTablero1;
+END CrearHijo;
+
+
+
+PROCEDURE JugadasPosibles(Tablero: TipoTablero; Color: TipoColor): BOOLEAN;
+(******************************************************************************************************************
+	Devuelve TRUE en caso de que el jugador del color especificado pueda hacer algún movimiento y FALSE en caso 
+	contrario.
+******************************************************************************************************************)
+VAR
+	Lista: TipoLista;
+	Posicion: TipoPosicion;
+	Nodo, NodoTemp: TipoNodo;
+	NumeroJugadas: INTEGER;
+
+BEGIN
+	NumeroJugadas := 0;
+	PosicionRey(Tablero, Color, Posicion);
+	Nodo := CrearNodo (Tablero);
+	InicializarLista(Lista);
+
+	Expandir(Nodo, Lista, Color, NumeroJugadas);
+
+	(* Comprueba que las jugadas posibles no son jaque *)
+	WHILE NOT(Vacia(Lista)) DO
+		Primero (Lista, NodoTemp);
+		Resto (Lista);
+		IF ReyEnJaque (NodoTemp^.Tablero, Color) THEN
+			NumeroJugadas := NumeroJugadas - 1;
+		END;
+	END;
+
+	(* Libera la memoria *)
+	RecolectorDeBasura();	
+	EliminarNodo(Nodo);
+
+	IF NumeroJugadas = 0 THEN 
+		RETURN FALSE;
+	ELSE
+		RETURN TRUE;
+	END;
+END JugadasPosibles;
+
+
+PROCEDURE MovimientosPieza(PtrTablero: TipoNodo; VAR Lista: TipoLista; i, j: INTEGER; VAR TotalJugadas: INTEGER);
+(******************************************************************************************************************
+   Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
+   especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
+******************************************************************************************************************)
+VAR
+	Origen, Destino: TipoPosicion;
+	PtrTableroTemp: TipoNodo;
+BEGIN
+	Origen.x := i;
+	Origen.y := j;
+	CASE PtrTablero^.Tablero.Casilla[i,j].Pieza OF
+		REY:
+		(* Para cada movimiento posible *)
+		(* No se añaden las compleciones en las que el rey está amenazado *)
+			(* Arriba *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+			END;
+			(**********)
+
+			(* Abajo *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+			END;
+			(**********)
+
+			(* Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+				Destino.x := Destino.x - 1;
+				(* Probar la siguiente posición *)
+
+			END;
+			(**********)
+
+			(* Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+				Destino.x := Destino.x + 1;
+				(* Probar la siguiente posición *)
+			END;
+			(**********)
+
+			(* Arriba-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+			END;
+			(**********)
+
+			(* Arriba-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+			END;
+			(**********)
+
+			(* Abajo-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+			END;
+			(**********)
+
+			(* Abajo-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PiezaAmenazada (Destino, PtrTableroTemp^.Tablero) THEN
+					EliminarNodo (PtrTableroTemp);
+				ELSE
+					AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					
+				END;
+			END;
+			(**********)
+
+		|
+		DAMA:
+		(* Para cada movimiento posible *)
+			(* Arriba *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Arriba-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x - 1;
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Arriba-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x + 1;
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x - 1;
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x + 1;
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+		|
+		TORRE:
+		(* Para cada movimiento posible *)
+			(* Arriba *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+		|
+		ALFIL:
+		(* Para cada movimiento posible *)
+			(* Arriba-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x - 1;
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Arriba-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x + 1;
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x - 1;
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				(* Añadir la jugada a la lista *)
+				Destino.x := Destino.x + 1;
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+		|
+		CABALLO:
+		(* Para cada movimiento posible *)
+			(* Arriba-Arriba-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y + 2;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Arriba-Arriba-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y + 2;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Abajo-Abajo-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y - 2;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Abajo-Abajo-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y - 2;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Izquierda-Izquierda-Arriba *)
+			Destino.x := Origen.x - 2;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Izquierda-Izquierda-Abajo *)
+			Destino.x := Origen.x - 2;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Derecha-Derecha-Arriba *)
+			Destino.x := Origen.x + 2;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+
+			(* Derecha-Derecha-Abajo *)
+			Destino.x := Origen.x + 2;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+				
+			END;
+			(**********)
+		|
+		PEON:
+		(* Para cada movimiento posible *)
+			(* Arriba *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y + 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Color = BLANCO THEN
+					IF  Destino.y = PtrTableroTemp^.Tablero.Alto THEN
+					(* Promoción del peón blanco *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				ELSE
+					IF Destino.y = 1 THEN
+					(* Promoción del peón negro *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				END;
+				(* Añadir la jugada a la lista *)
+				Destino.y := Destino.y + 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Abajo *)
+			Destino.x := Origen.x;
+			Destino.y := Origen.y - 1;
+			WHILE MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) DO
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Color = BLANCO THEN
+					IF  Destino.y = PtrTableroTemp^.Tablero.Alto THEN
+					(* Promoción del peón blanco *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				ELSE
+					IF Destino.y = 1 THEN
+					(* Promoción del peón negro *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				END;
+				(* Añadir la jugada a la lista *)
+				Destino.y := Destino.y - 1;
+				(* Probar la siguiente posición *)
+				
+			END;
+			(**********)
+
+			(* Arriba-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Color = BLANCO THEN
+					IF  Destino.y = PtrTableroTemp^.Tablero.Alto THEN
+					(* Promoción del peón blanco *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				ELSE
+					IF Destino.y = 1 THEN
+					(* Promoción del peón negro *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				END;
+				
+			END;
+			(**********)
+
+			(* Arriba-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y + 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Color = BLANCO THEN
+					IF  Destino.y = PtrTableroTemp^.Tablero.Alto THEN
+					(* Promoción del peón blanco *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				ELSE
+					IF Destino.y  = 1 THEN
+					(* Promoción del peón negro *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				END;
+				
+			END;
+			(**********)
+
+			(* Abajo-Izquierda *)
+			Destino.x := Origen.x - 1;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Color = BLANCO THEN
+					IF  Destino.y = PtrTableroTemp^.Tablero.Alto THEN
+					(* Promoción del peón blanco *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				ELSE
+					IF Destino.y = 1 THEN
+					(* Promoción del peón negro *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				END;
+				
+			END;
+			(**********)
+
+			(* Abajo-Derecha *)
+			Destino.x := Origen.x + 1;
+			Destino.y := Origen.y - 1;
+			IF MovimientoLegal (Origen, Destino, PtrTablero^.Tablero, FALSE) THEN
+			(* Mientras la jugada no sea ilegal *)
+				CrearHijo (PtrTablero, PtrTableroTemp);
+				(* Se hace una copia del tablero tras el movimiento *)
+				MoverPieza (Origen, Destino, PtrTableroTemp^.Tablero, FALSE, FALSE);
+				IF PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Color = BLANCO THEN
+					IF  Destino.y = PtrTableroTemp^.Tablero.Alto THEN
+					(* Promoción del peón blanco *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				ELSE
+					IF Destino.y = 1 THEN
+					(* Promoción del peón negro *)
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := DAMA;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := CABALLO;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := ALFIL;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+						PtrTableroTemp^.Tablero.Casilla[Destino.x,Destino.y].Pieza := TORRE;
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					ELSE
+					(* Movimiento normal *)
+						AnadirFIFO (PtrTableroTemp, Lista); TotalJugadas := TotalJugadas + 1;
+					END;
+				END;
+				
+			END;
+			(**********)
+		|
+	ELSE
+	END;
+END MovimientosPieza;
+
+PROCEDURE Expandir(PtrTablero: TipoNodo; VAR Lista: TipoLista; Color: TipoColor; VAR TotalJugadas: INTEGER);
+(******************************************************************************************************************
+   Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
+   especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
+******************************************************************************************************************)
+VAR
+	i, j: INTEGER;
+BEGIN
+	FOR j := 1 TO PtrTablero^.Tablero.Alto DO
+		FOR i := 1 TO PtrTablero^.Tablero.Ancho DO
+			IF PtrTablero^.Tablero.Casilla[i,j].Color = Color THEN
+				MovimientosPieza (PtrTablero, Lista, i ,j, TotalJugadas);
+			END;
+		END;
+	END;
+END Expandir;
+
+PROCEDURE NivelNodo (Nodo: TipoNodo):INTEGER;
+BEGIN
+(*	IF (Nodo^.Predecesor = NIL) THEN
+		RETURN 0;
+	ELSE
+		RETURN (NivelNodo (Nodo^.Predecesor) + 1);
+	END;
+*)
+	RETURN Nodo^.Nivel;
+END NivelNodo;
+
+PROCEDURE ImprimirJugadas (PtrTablero: TipoNodo; Debug: BOOLEAN);
+(******************************************************************************************************************
+   Se imprimen en la salida estandar las jugadas hechas desde el nodo raiz del árbol de jugadas, hasta la situación 
+   final.
+******************************************************************************************************************)
+BEGIN
+	IF PtrTablero # NIL THEN
+		ImprimirJugadas (PtrTablero^.Predecesor, Debug);
+		ImprimirTablero (PtrTablero^.Tablero, Debug);
+
+		WriteString ("Nivel ");
+		WriteInt(PtrTablero^.Nivel, 1);
+		WriteLn;
+	END;
+END ImprimirJugadas;
+
+PROCEDURE alfa_beta (J: TipoNodo; alfa, beta: INTEGER):TipoNodo;
+(******************************************************************************************************************
+	Devuelve el nodo meta al aplicar una poda alfa-beta sobre minimax.
+******************************************************************************************************************)
+VAR
+	Compleciones: TipoLista;
+	Jk: TipoNodo;
+
+	PROCEDURE max(nodo1, nodo2: TipoNodo): TipoNodo;
+	(*
+		Develve el nodo1 si el valor alfa de este es mayor que el valor beta del
+		nodo2
+	*)
+	BEGIN
+		IF nodo1^.Alfa < nodo2^.Beta THEN
+			nodo2^.Alfa := nodo2^.Beta;
+			nodo2^.Beta := nodo1^.Beta;
+			RETURN nodo2;
+		ELSE
+			RETURN nodo1;
+		END;
+	END max;
+
+	PROCEDURE min(nodo1, nodo2: TipoNodo): TipoNodo;
+	(*
+		Develve el nodo1 si el valor beta de este es menor que el valor alfa del
+		nodo2
+	*)
+	BEGIN
+		IF nodo1^.Beta > nodo2^.Alfa THEN
+			nodo2^.Beta := nodo2^.Alfa;
+			nodo2^.Alfa := nodo1^.Alfa;
+			RETURN nodo2;
+		ELSE
+			RETURN nodo1;
+		END;
+	END min;
+
+BEGIN
+	(* Nota: los nodos se crean en principio con los valores alfa y beta de su padre *)
+	J^.Alfa := alfa;
+   J^.Beta := beta;
+
+	(* Si J es terminal, devolver J *)
+	IF (NivelNodo(J) > MaxNivel) OR EsMate(J^.Tablero) THEN
+		(* Se evalua la posición *)
+		J^.Evaluacion := PuntuacionTablero(J^.Tablero, JugadorMax);
+		IF ((NivelNodo (J) MOD 2) = 0) THEN
+		(* Para un nodo max, se actualiza el valor de alfa *)
+			J^.Alfa := J^.Evaluacion;
+		ELSE
+		(* Para un nodo min, se actualiza el valor de beta *)
+			J^.Beta := J^.Evaluacion;
+		END;
+		RETURN J;
+	ELSE
+
+		InicializarLista(Compleciones);
+		IF ((NivelNodo (J) MOD 2) = 0) THEN
+		(* Juega MAX *)
+			(* WriteString("Juega max"); WriteLn; *)
+
+			Expandir (J, Compleciones, JugadorMax, JugadasGeneradas);
+			(* Se generan las jugadas posibles para el jugador MAX a partir de esa posición *)
+			IF Vacia(Compleciones) THEN 
+			(* J es terminal *)
+				J^.Evaluacion := PuntuacionTablero(J^.Tablero, JugadorMax);
+				RETURN J;
+			ELSE
+		
+				REPEAT
+
+					(* Se toma el primer hijo Jk *)
+ 					Primero (Compleciones, Jk);
+ 					Resto (Compleciones);
+ 	
+  					(* Se devuelve el hijo que tenga un mayor valor de alfa *)
+ 					J := max(J, alfa_beta(Jk, J^.Alfa, J^.Beta));
+ 			
+ 					(* Si en algún momento alfa es mayor o igual que beta, se poda el árbol *)
+					IF J^.Alfa >= J^.Beta THEN
+						J^.Alfa := J^.Beta;
+						RETURN J; 
+					END;
+
+				UNTIL Vacia(Compleciones);
+				(* Si no hay más hijos, devolver el nodo (alfa en Evaluacion) *)
+				RETURN J;
+
+			END;
+			
+		ELSE
+			(* Juega MIN *)
+			(* WriteString("Juega min"); WriteLn; *)
+	
+			Expandir (J, Compleciones, JugadorMin, JugadasGeneradas);
+			(* Se generan las jugadas posibles para el jugador MAX a partir de esa posición *)
+			IF Vacia(Compleciones) THEN
+			(* J es terminal *)
+				J^.Evaluacion := PuntuacionTablero(J^.Tablero, JugadorMax);
+				RETURN J;
+			ELSE
+
+				REPEAT
+
+					(* Se toma el primer hijo Jk *)
+					Primero (Compleciones, Jk);
+					Resto (Compleciones);
+
+					(* Se devuelve el hijo que tenga un mayor valor de alfa *)
+					J := min(J, alfa_beta(Jk, J^.Alfa, J^.Beta)); 
+
+					(* Si en algún momento alfa es mayor o igual que beta, se poda el árbol *)
+					IF J^.Alfa >= J^.Beta THEN 
+						J^.Beta := J^.Alfa;
+						RETURN J; 
+					END;
+
+				UNTIL Vacia(Compleciones);
+				(* Si no hay más hijos, devolver el nodo (beta en Evaluacion) *)
+				RETURN J;
+
+			END;
+
+		END;
+	END;
+END alfa_beta;
+
+PROCEDURE minimax (J: TipoNodo):TipoNodo;
+(******************************************************************************************************************
+	Devuelve la mejor jugada por el método minimax (Etiquetado MMvalor)
+******************************************************************************************************************)
+VAR
+	Compleciones: TipoLista;
+	Temp, n: TipoNodo;
+	mejor: INTEGER;
+BEGIN
+	InicializarLista(Compleciones);
+	(* Si J es terminal, devolver J *)
+   IF (NivelNodo(J) > MaxNivel) OR EsMate(J^.Tablero) THEN
+      (* Se evalua la posición *)
+      IF ((NivelNodo (J) MOD 2) = 0) THEN
+      (* Para un nodo max se devuelve la función de evaluación *)
+         J^.Evaluacion := PuntuacionTablero(J^.Tablero, JugadorMax);
+      ELSE
+      (* Para un nodo min se devuelve el valor negativo de la función de evaluación *)
+         J^.Evaluacion := - PuntuacionTablero(J^.Tablero, JugadorMax);
+      END;
+      RETURN J;
+   ELSE
+		IF ((NivelNodo (J) MOD 2) = 0) THEN
+			(* Juega MAX *)
+			Expandir (J, Compleciones, JugadorMax, JugadasGeneradas);
+			IF Vacia(Compleciones) THEN
+				(* J es terminal *)
+				J^.Evaluacion := PuntuacionTablero(J^.Tablero, JugadorMax);
+				RETURN J;
+			ELSE
+				mejor := MIN(INTEGER);
+				WHILE NOT(Vacia(Compleciones)) DO
+					Primero (Compleciones, n);
+					Temp := minimax(n);
+					Resto(Compleciones);
+					IF (-Temp^.Evaluacion) > mejor THEN
+						mejor := -Temp^.Evaluacion;
+						J := Temp;
+						J^.Evaluacion := mejor;
+					END;
+				END;
+				RETURN J;
+			END;
+		ELSE
+			(* Juega MIN *)
+			Expandir (J, Compleciones, JugadorMin, JugadasGeneradas);
+			IF Vacia(Compleciones) THEN
+				(* J es terminal *)
+				J^.Evaluacion := - PuntuacionTablero(J^.Tablero, JugadorMax);
+				RETURN J;
+			ELSE
+				mejor := MIN(INTEGER);
+				WHILE NOT(Vacia(Compleciones)) DO
+					Primero (Compleciones, n);
+					Temp := minimax(n);
+               Resto(Compleciones);
+					IF (-Temp^.Evaluacion) > mejor THEN
+						mejor := -Temp^.Evaluacion;;
+						J := Temp;
+						J^.Evaluacion := mejor;
+					END;
+				END;
+				RETURN J;
+			END;
+		END;
+	END;
+END minimax;
+
+PROCEDURE Jugada(VAR Tablero: TipoTablero; Jugador: TipoColor; Metodo: INTEGER);
+(******************************************************************************************************************
+	El jugador Max hace un movimiento en el Tablero.
+	Movimiento:
+		1: minimax
+		2: alfa-beta
+		3: alfa-beta y minimax
+******************************************************************************************************************)
+VAR
+	Nodo, NodoTemp: TipoNodo;
+	index: INTEGER;
+
+BEGIN
+
+	IF Jugador = BLANCO THEN
+		JugadorMin := NEGRO;
+		JugadorMax := BLANCO;
+	ELSE
+		JugadorMin := BLANCO;
+		JugadorMax := NEGRO;
+	END;
+
+
+IF Metodo # 2 THEN
+
+(* Método de minimax *)
+	JugadasGeneradas := 0;
+
+	NodoTemp := CrearNodo (Tablero);
+	WriteString ("*** Se va a ejecutar poda alfa-beta ***"); WriteLn;
+	WriteString ("Generando jugada..."); WriteLn;
+	ResetClock();
+	Nodo := alfa_beta (NodoTemp, -100000, 100000);
+	Tiempo := (UserTime() DIV 6);
+
+	(* Se muestra el número de jugadas generadas *)
+	WriteString ("Se han generado ");
+	WriteInt(JugadasGeneradas, 1); 
+	WriteString (" jugadas generadas por el método de poda alfa-beta.");
+	WriteLn;
+	WriteString ("Tiempo de generación por alfa-beta: ");
+	WriteInt (Tiempo, 1);
+	WriteString (" décimas de segundo.");
+	WriteLn;
+
+END;
+
+IF Metodo # 1 THEN
+
+(* Método de poda alfa-beta *)
+	JugadasGeneradas := 0;
+
+	NodoTemp := CrearNodo (Tablero);
+	WriteString ("*** Se va a ejecutar MINIMAX ***"); WriteLn;
+	WriteString ("Generando jugada..."); WriteLn;
+	ResetClock();
+	Nodo := minimax (NodoTemp);
+	Tiempo := (UserTime() DIV 6);
+
+	(* Se muestra el número de jugadas generadas *)
+	WriteString ("Se han generado ");
+	WriteInt(JugadasGeneradas, 1);
+	WriteString (" jugadas generadas por el método de MINIMAX.");
+	WriteLn;
+	WriteString ("Tiempo de generación por MINIMAX: ");
+	WriteInt (Tiempo, 1);
+	WriteString (" décimas de segundo.");
+	WriteLn;
+
+END;
+
+	WHILE Nodo^.Nivel > 1 DO
+		Nodo := Nodo^.Predecesor;
+	END;
+	CopiarTablero (Nodo^.Tablero, Tablero);
+	(* Se libera el nodo raiz *)
+	EliminarNodo (NodoTemp);
+	(* Se libera la memoria *)
+	RecolectorDeBasura();
+
+END Jugada;
+
+END IA.
+
+
+
+
+
+
+
