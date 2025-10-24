@@ -142,6 +142,9 @@ public class IA {
         // VAR
         TDATablero.TipoDatos Nodo = null;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Crea un nodo a partir de la posición inicial.
+        ******************************************************************************************************************/
         Nodo = new TDATablero.TipoDatos();
         tDATablero.CopiarTablero(Tablero, Nodo.Tablero);
         Nodo.Predecesor = null;
@@ -150,10 +153,18 @@ public class IA {
     }
 
     private void EliminarNodo(TDATablero.TipoDatos Nodo) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Elimina un nodo.
+        ******************************************************************************************************************/
         Nodo = null;
     }
 
     private void CrearHijo(TDATablero.TipoDatos PtrTablero1, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> PtrTablero2) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Crea un puntero a una copia del tablero al que apunta PtrTablero1 y hace apuntar el campo Predecesor de la copia
+           al tablero original.
+           Los dos tableros deben tener las mismas dimensiones. (Precondición)
+        ******************************************************************************************************************/
         PtrTablero2.set(new TDATablero.TipoDatos());
         tDATablero.CopiarTablero(PtrTablero1.Tablero, PtrTablero2.get().Tablero);
         PtrTablero2.get().Nivel = PtrTablero1.Nivel + 1;
@@ -173,12 +184,14 @@ public class IA {
         Nodo = CrearNodo(Tablero);
         tDALista.InicializarLista(Lista);
         Expandir(Nodo, Lista, Color, NumeroJugadas);
+        /* Comprueba que las jugadas posibles no son jaque */
         while (!tDALista.Vacia(Lista)) {
             tDALista.Primero(Lista, NodoTemp);
             tDALista.Resto(Lista);
             if (tDATablero.ReyEnJaque(NodoTemp.get().Tablero, Color))
                 NumeroJugadas.set(NumeroJugadas.get() - 1);
         }
+        /* Libera la memoria */
         tDALista.RecolectorDeBasura();
         EliminarNodo(Nodo);
         if (NumeroJugadas.get() == 0)
@@ -193,6 +206,10 @@ public class IA {
         TDATablero.TipoPosicion Destino = new TDATablero.TipoPosicion();
         Runtime.Ref<TDATablero.TipoDatos> PtrTableroTemp = new Runtime.Ref<>(null);
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
+           especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
+        ******************************************************************************************************************/
         Origen.x = i;
         Origen.y = j;
         switch (PtrTablero.Tablero.Casilla[i - 1][j - 1].Pieza) {
@@ -787,11 +804,16 @@ public class IA {
         }
     }
 
+    /*★★★★★★★★*/
     private void Expandir(TDATablero.TipoDatos PtrTablero, /* VAR+WRT */ TDALista.TipoLista Lista, TipoColor Color, /* VAR+WRT */ Runtime.IRef<Integer> TotalJugadas) {
         // VAR
         int i = 0;
         int j = 0;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
+           especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
+        ******************************************************************************************************************/
         for (j = 1; j <= PtrTablero.Tablero.Alto; j++) {
             for (i = 1; i <= PtrTablero.Tablero.Ancho; i++) {
                 if (PtrTablero.Tablero.Casilla[i - 1][j - 1].Color == Color)
@@ -801,10 +823,20 @@ public class IA {
     }
 
     private int NivelNodo(TDATablero.TipoDatos Nodo) {
+        /*	IF (Nodo^.Predecesor = NIL) THEN
+        		RETURN 0;
+        	ELSE
+        		RETURN (NivelNodo (Nodo^.Predecesor) + 1);
+        	END;
+        */
         return Nodo.Nivel;
     }
 
     private void ImprimirJugadas(TDATablero.TipoDatos PtrTablero, boolean Debug) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Se imprimen en la salida estandar las jugadas hechas desde el nodo raiz del árbol de jugadas, hasta la situación 
+           final.
+        ******************************************************************************************************************/
         if (PtrTablero != null) {
             ImprimirJugadas(PtrTablero.Predecesor, Debug);
             tDATablero.ImprimirTablero(PtrTablero.Tablero, Debug);
@@ -814,7 +846,14 @@ public class IA {
         }
     }
 
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    	Devuelve el nodo meta al aplicar una poda alfa-beta sobre minimax.
+    ******************************************************************************************************************/
     private TDATablero.TipoDatos alfa_beta_max(TDATablero.TipoDatos nodo1, TDATablero.TipoDatos nodo2) {
+        /*
+        		Develve el nodo1 si el valor alfa de este es mayor que el valor beta del
+        		nodo2
+        	*/
         if (nodo1.Alfa < nodo2.Beta) {
             nodo2.Alfa = nodo2.Beta;
             nodo2.Beta = nodo1.Beta;
@@ -825,6 +864,10 @@ public class IA {
     }
 
     private TDATablero.TipoDatos alfa_beta_min(TDATablero.TipoDatos nodo1, TDATablero.TipoDatos nodo2) {
+        /*
+        		Develve el nodo1 si el valor beta de este es menor que el valor alfa del
+        		nodo2
+        	*/
         if (nodo1.Beta > nodo2.Alfa) {
             nodo2.Beta = nodo2.Alfa;
             nodo2.Alfa = nodo1.Alfa;
@@ -839,8 +882,10 @@ public class IA {
         TDALista.TipoLista Compleciones = new TDALista.TipoLista(); /* WRT */
         Runtime.Ref<TDATablero.TipoDatos> Jk = new Runtime.Ref<>(null);
 
+        /* Nota: los nodos se crean en principio con los valores alfa y beta de su padre */
         J.Alfa = alfa;
         J.Beta = beta;
+        /* Si J es terminal, devolver J */
         if ((NivelNodo(J) > MaxNivel) || tDATablero.EsMate(J.Tablero)) {
             J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
             if ((NivelNodo(J) % 2) == 0)
@@ -888,6 +933,7 @@ public class IA {
         }
     }
 
+    /* Si no hay más hijos, devolver el nodo (beta en Evaluacion) */
     private TDATablero.TipoDatos minimax(TDATablero.TipoDatos J) {
         // VAR
         TDALista.TipoLista Compleciones = new TDALista.TipoLista(); /* WRT */
@@ -895,7 +941,11 @@ public class IA {
         Runtime.Ref<TDATablero.TipoDatos> n = new Runtime.Ref<>(null);
         int mejor = 0;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        	Devuelve la mejor jugada por el método minimax (Etiquetado MMvalor)
+        ******************************************************************************************************************/
         tDALista.InicializarLista(Compleciones);
+        /* Si J es terminal, devolver J */
         if ((NivelNodo(J) > MaxNivel) || tDATablero.EsMate(J.Tablero)) {
             if ((NivelNodo(J) % 2) == 0)
                 J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
@@ -1000,7 +1050,9 @@ public class IA {
             Nodo = Nodo.Predecesor;
         }
         tDATablero.CopiarTablero(Nodo.Tablero, Tablero);
+        /* Se libera el nodo raiz */
         EliminarNodo(NodoTemp);
+        /* Se libera la memoria */
         tDALista.RecolectorDeBasura();
     }
 

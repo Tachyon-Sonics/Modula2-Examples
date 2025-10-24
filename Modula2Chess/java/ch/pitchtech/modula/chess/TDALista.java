@@ -97,6 +97,8 @@ public class TDALista {
 
     // VAR
 
+    /* Aquí se guardarán todos los nodos que se vayan referenciando para liberarlos al terminar */
+    /* BASURA será un dato de tipo encapsulado */
     private TipoBasura BASURA = new TipoBasura();
 
 
@@ -111,11 +113,14 @@ public class TDALista {
 
     // PROCEDURE
 
+    /* Procedimientos para recoger la basura */
     private void InicializarBasura() {
+        /* Función que "Devuelve una basura vacía") */
         BASURA.ultimo = 0;
     }
 
     private void AnadirBasura(TDATablero.TipoDatos x) {
+        /* Añade el elemento a la basura */
         BASURA.elemento[BASURA.ultimo + 1 - 1] = x;
         BASURA.ultimo = BASURA.ultimo + 1;
     }
@@ -124,11 +129,13 @@ public class TDALista {
         // VAR
         int i = 0;
 
+        /* Elimina un elemento de la basura */
         BASURA.elemento[BASURA.ultimo - 1] = null;
         BASURA.ultimo = BASURA.ultimo - 1;
     }
 
     private boolean VaciaBasura() {
+        /* Comprueba que en la lista hay algún elemento */
         if (BASURA.ultimo == 0)
             return true;
         else
@@ -147,10 +154,13 @@ public class TDALista {
         inOut.WriteLn();
     }
 
+    /* Procedimientos generales */
     public void Insertar(/* VAR */ TipoLista L, TDATablero.TipoDatos x, int p) {
         // VAR
         int i = 0;
 
+        /* Inserta un elemento, x, en una posicion p de L, pasando los elementos
+         de la posicion p y siguientes a la posicion inmediatamente posterior */
         for (i = L.ultimo + 1; i >= p + 1; i -= 1) {
             L.elemento[i - 1] = L.elemento[i - 1 - 1];
         }
@@ -163,6 +173,8 @@ public class TDALista {
         // VAR
         int i = 0;
 
+        /* Encuentra el elemento x que esta en la posicion p, si la posicion p es
+        mayor que el numero de elementos de L, devuelve a encontrado FALSE */
         if (p > L.ultimo) {
             encontrado.set(false);
         } else {
@@ -175,6 +187,7 @@ public class TDALista {
         // VAR
         int i = 0;
 
+        /* Elimina de L el elemento de la posicion p */
         for (i = p; i <= L.ultimo; i++) {
             L.elemento[i - 1] = L.elemento[i + 1 - 1];
         }
@@ -182,34 +195,42 @@ public class TDALista {
     }
 
     public void Anula(/* VAR */ TipoLista L) {
+        /* Vacía L */
         L.ultimo = 0;
     }
 
     public void Primero(/* var */ TipoLista L, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> x) {
+        /* De vuelve el primer elemento de L */
         x.set(L.elemento[0]);
     }
 
     public void Ultimo(/* var */ TipoLista L, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> x) {
+        /* Devuelve el ultimo elemento de L */
         x.set(L.elemento[L.ultimo - 1]);
     }
 
     public void InicializarLista(/* VAR */ TipoLista L) {
+        /* Función que "Devuelve una lista vacía") */
         L.ultimo = 0;
     }
 
     public void AnadirFIFO(TDATablero.TipoDatos x, /* VAR+WRT */ TipoLista L) {
+        /* Añade el elemento x al final de la lista L (cola) */
         Insertar(L, x, L.ultimo + 1);
     }
 
     public void AnadirLIFO(TDATablero.TipoDatos x, /* VAR+WRT */ TipoLista L) {
+        /* Añade el elemento x al principio de la lista L (pila) */
         Insertar(L, x, 1);
     }
 
     public void Resto(/* VAR+WRT */ TipoLista L) {
+        /* Elimina el primer elemento de la lista */
         Suprimir(L, 1);
     }
 
     public boolean Vacia(/* var */ TipoLista L) {
+        /* Comprueba que en la lista hay algún elemento */
         if (L.ultimo == 0)
             return true;
         else
@@ -221,6 +242,7 @@ public class TDALista {
         Runtime.Ref<TDATablero.TipoDatos> x = new Runtime.Ref<>(null);
         Runtime.Ref<Boolean> encontrado = new Runtime.Ref<>(false);
 
+        /* Consulta el elemento de la posición p de la lista sin modificarla */
         Recuperar(L, x, p, encontrado);
         if (encontrado.get() == true)
             e.set(x.get());

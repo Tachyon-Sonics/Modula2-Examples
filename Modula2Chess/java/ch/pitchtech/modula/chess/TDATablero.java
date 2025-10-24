@@ -25,7 +25,10 @@ public class TDATablero {
     // CONST
 
     public static final int MAXALTO = 8;
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
     public static final int MAXANCHO = 8;
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★    Funciones generales para el manejo de tableros     **************************/
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
     public static final int DespX = 0;
     public static final int DespY = 60;
     public static final int TamanhoCasilla = 60;
@@ -33,6 +36,13 @@ public class TDATablero {
 
     // TYPE
 
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    	Determina si el jugador especificado por Color está en jaque mate.
+    	Devuelve:
+    		0: Si no hay jaque mate ni el rey está ahogado;
+    		1: Si es jaque mate;
+    		2: Si el rey está ahogado;
+    ******************************************************************************************************************/
     public static class TipoPosicion { // RECORD
 
         public int x;
@@ -74,6 +84,7 @@ public class TDATablero {
         BLANCO;
     }
 
+    /* Si se puede hacer alguna jugada */
     public static enum TipoPieza {
         VACIA,
         PEON,
@@ -120,6 +131,8 @@ public class TDATablero {
 
     }
 
+    /* Si no se pueden hacer jugadas */
+    /* No se puede hacer ningún movimiento pero el rey no está en jaque */
     public static class TipoMovimiento { // RECORD
 
         public TipoPosicion Origen = new TipoPosicion();
@@ -282,6 +295,10 @@ public class TDATablero {
 
     }
 
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    	Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
+    ******************************************************************************************************************/
+
     public static class TipoDatos { // RECORD
 
         public TipoTablero Tablero = new TipoTablero();
@@ -387,6 +404,10 @@ public class TDATablero {
         int i = 0;
         int j = 0;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Copia el contenido del primer tablero al segundo. 
+           Los dos tableros deben tener las mismas dimensiones. (Precondición)
+        ******************************************************************************************************************/
         Tablero2.Alto = Tablero1.Alto;
         Tablero2.Ancho = Tablero1.Ancho;
         for (j = 1; j <= Tablero1.Alto; j++) {
@@ -418,19 +439,31 @@ public class TDATablero {
         Runtime.Ref<Character> Temp = new Runtime.Ref<>((char) 0);
         Runtime.Ref<Integer> Temp2 = new Runtime.Ref<>(0);
 
+        /* Índices para la matriz */
+        /* Almacenamiento temporal para el tipo de pieza */
+        /* Comprobar si existe el archivo y se puede escribir en él */
         if (!textIO.Accessible(Archivo, false))
             return true;
+        /* Abrir archivo */
         textIO.OpenInput(F, Archivo.get());
+        /* Leer alto y ancho */
         textIO.GetInt(F.get(), new Runtime.FieldExprRef<>(Tablero, TipoTablero::getAlto, TipoTablero::setAlto));
+        /* Comprueba que el alto no excede el tamaño máximo */
         if (Tablero.Alto > MAXALTO)
             return true;
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
         textIO.GetInt(F.get(), new Runtime.FieldExprRef<>(Tablero, TipoTablero::getAncho, TipoTablero::setAncho));
+        /* Comprueba que el ancho no excede el tamaño máximo */
         if (Tablero.Alto > MAXANCHO)
             return true;
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Leer casillas */
         for (j = (Tablero.Alto); j >= 1; j -= 1) {
             for (i = 1; i <= Tablero.Ancho; i++) {
                 textIO.GetChar(F.get(), Temp);
@@ -494,15 +527,21 @@ public class TDATablero {
             }
             textIO.GetChar(F.get(), Temp);
         }
+        /* Lee el salto de linea */
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Leer coordenadas del último movimiento */
         textIO.GetInt(F.get(), new Runtime.FieldExprRef<>(Tablero.UltimoMovimiento.Origen, TipoPosicion::getX, TipoPosicion::setX));
         textIO.GetInt(F.get(), new Runtime.FieldExprRef<>(Tablero.UltimoMovimiento.Origen, TipoPosicion::getY, TipoPosicion::setY));
         textIO.GetInt(F.get(), new Runtime.FieldExprRef<>(Tablero.UltimoMovimiento.Destino, TipoPosicion::getX, TipoPosicion::setX));
         textIO.GetInt(F.get(), new Runtime.FieldExprRef<>(Tablero.UltimoMovimiento.Destino, TipoPosicion::getY, TipoPosicion::setY));
         if ((Tablero.UltimoMovimiento.Origen.x > MAXANCHO) || (Tablero.UltimoMovimiento.Origen.y > MAXALTO) || (Tablero.UltimoMovimiento.Destino.x > MAXANCHO) || (Tablero.UltimoMovimiento.Destino.y > MAXALTO) || (Tablero.UltimoMovimiento.Origen.x < 1) || (Tablero.UltimoMovimiento.Origen.y < 1) || (Tablero.UltimoMovimiento.Destino.x < 1) || (Tablero.UltimoMovimiento.Destino.y < 1))
             return true;
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Leer si los reyes y las torres han sido movidos */
         textIO.GetInt(F.get(), Temp2);
         if (Temp2.get() == 1)
             Tablero.ReyBlancoMovido = true;
@@ -545,10 +584,16 @@ public class TDATablero {
             Tablero.TorreDNegraMovida = false;
         else
             return true;
+        /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
+        /* Se cierra el archivo */
         textIO.Close(F.get());
+        /* Se comprueba que haya dos reyes (uno de cada color) */
+        /* POR HACER */
+        /* Se añaden los valores predeterminados para la última captura */
         Tablero.UltimaCaptura.Pieza = TipoPieza.VACIA;
         Tablero.UltimaCaptura.Color = TipoColor.BLANCO;
+        /* Si se ha llegado a este punto, no ha habido error */
         return false;
     }
 
@@ -558,10 +603,17 @@ public class TDATablero {
         TipoPosicion DestinoTorre = new TipoPosicion();
         boolean PromocionPeon = false;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+          Mueve la pieza de la casilla Posicion1 a la casilla Posicion2 sin hacer comprobaciones.
+          Las comprobaciones deben hacerse anteriormente (precondición)
+        *******************************************************************************************************************/
+        /* Guardar UltimaCaptura si procede*/
+        /* Si la posición de destino no está vacía, se trata de una captura y se guarda*/
         if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza != TipoPieza.VACIA) {
             Tablero.UltimaCaptura.Pieza = Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza;
             Tablero.UltimaCaptura.Color = Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Color;
         }
+        /* Si se va a mover el rey o una torre */
         PromocionPeon = false;
         if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza == TipoPieza.REY) {
             if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO) {
@@ -631,6 +683,8 @@ public class TDATablero {
             if (((Posicion2.y == Tablero.Alto) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO)) || ((Posicion2.y == 1) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.NEGRO)))
                 PromocionPeon = true;
         }
+        /* Promoción del peón */
+        /* Copiar la casilla de origen a la casilla de destino */
         if (PromocionPeon) {
             if (Humano)
                 ElegirPieza(new Runtime.FieldExprRef<>(Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1], TipoCasilla::getPieza, TipoCasilla::setPieza));
@@ -639,8 +693,11 @@ public class TDATablero {
             Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza = Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza;
             Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Color = Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color;
         }
+        /* Juega la máquina */
+        /* Vaciar la casilla de origen */
         Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza = TipoPieza.VACIA;
         Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color = TipoColor.BLANCO;
+        /* Guardar movimiento */
         Tablero.UltimoMovimiento.Origen.x = Posicion1.x;
         Tablero.UltimoMovimiento.Origen.y = Posicion1.y;
         Tablero.UltimoMovimiento.Destino.x = Posicion2.x;
@@ -651,66 +708,103 @@ public class TDATablero {
         // VAR
         TipoPosicion Actual = new TipoPosicion();
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Devuelve el valor TRUE si alguna pieza está amenazando la posición suministrada como parámetro y FALSE en 
+           caso contrario.
+        ******************************************************************************************************************/
+        /* Movimiento a la izquierda */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.x = Actual.x - 1;
         } while (!((Actual.x <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento arriba a la izquierda */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.x = Actual.x - 1;
             Actual.y = Actual.y + 1;
         } while (!((Actual.x <= 1) || (Actual.y >= Tablero.Alto) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento arriba */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.y = Actual.y + 1;
         } while (!((Actual.y >= Tablero.Alto) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento arriba a la derecha */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.x = Actual.x + 1;
             Actual.y = Actual.y + 1;
         } while (!((Actual.x >= Tablero.Ancho) || (Actual.y >= Tablero.Alto) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento a la derecha */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.x = Actual.x + 1;
         } while (!((Actual.x >= Tablero.Ancho) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento abajo a la derecha */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.x = Actual.x + 1;
             Actual.y = Actual.y - 1;
         } while (!((Actual.x >= Tablero.Ancho) || (Actual.y <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento abajo*/
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.y = Actual.y - 1;
         } while (!((Actual.y <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimiento abajo a la derecha */
+        /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
             Actual.x = Actual.x - 1;
             Actual.y = Actual.y - 1;
         } while (!((Actual.x <= 1) || (Actual.y <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
+        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
             return true;
+        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
+        /* Movimientos de caballo */
         if ((Posicion.y + 2) <= Tablero.Alto) {
             Actual.y = Posicion.y + 2;
             if (Posicion.x < Tablero.Ancho) {
@@ -724,6 +818,7 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Arriba-Arriba-Izquierda */
         if ((Posicion.y - 2) >= 1) {
             Actual.y = Posicion.y - 2;
             if (Posicion.x < Tablero.Ancho) {
@@ -737,6 +832,7 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Abajo-Abajo-Izquierda */
         if ((Posicion.x - 2) >= 1) {
             Actual.x = Posicion.x - 2;
             if (Posicion.y < Tablero.Alto) {
@@ -750,6 +846,7 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Izquierda-Izquierda-Abajo */
         if ((Posicion.x + 2) <= Tablero.Ancho) {
             Actual.x = Posicion.x + 2;
             if (Posicion.y < Tablero.Alto) {
@@ -763,6 +860,8 @@ public class TDATablero {
                     return true;
             }
         }
+        /* El llegar hasta este punto sin haber encontrado ninguna pieza que amenace la posición original supone
+        	   que la pieza no está amenazada */
         return false;
     }
 
@@ -770,6 +869,9 @@ public class TDATablero {
         // VAR
         TipoTablero TableroTemp = new TipoTablero(); /* WRT */
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        	Devuelve el valor TRUE si está amenazada la pieza en la posición 1 al moverla y FALSE caso contrario.
+        ******************************************************************************************************************/
         CopiarTablero(Tablero, TableroTemp);
         MoverPieza(Posicion1, Posicion2, TableroTemp, false, false);
         if (PiezaAmenazada(Posicion2, TableroTemp))
@@ -779,13 +881,24 @@ public class TDATablero {
     }
 
     private boolean JugadaEnTablero(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Devuelve el valor TRUE si las posiciones de la jugada no exceden los límites del tablero y
+           devuelve FALSE en caso contrario.
+        ******************************************************************************************************************/
         if ((Posicion1.x >= 1) && (Posicion1.x <= Tablero.Ancho) && (Posicion1.y >= 1) && (Posicion1.y <= Tablero.Alto) && (Posicion2.x >= 1) && (Posicion2.x <= Tablero.Ancho) && (Posicion2.y >= 1) && (Posicion2.y <= Tablero.Alto))
             return true;
         else
             return false;
     }
 
+    /* Las posiciones están dentro de los límites del tablero */
     private boolean PosicionesIguales(TipoPosicion Posicion1, TipoPosicion Posicion2) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        Si las posiciones son iguales, devuelve TRUE, en caso contrario devuelve FALSE
+        
+        Se requieren las comprobaciones anteriores de (precondiciones):
+        -Comprobar que las direcciones no exceden los límites del tablero.
+        ******************************************************************************************************************/
         if ((Posicion1.x == Posicion2.x) && (Posicion1.y == Posicion2.y))
             return true;
         else
@@ -793,6 +906,11 @@ public class TDATablero {
     }
 
     private boolean DireccionVacia(TipoPosicion Posicion, TipoTablero Tablero) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Devuelve TRUE si no hay una pieza en la posicion, en caso contrario devuelve FALSE.
+        Se requieren las comprobaciones anteriores de (precondiciones):
+        -Comprobar que la dirección no excede los límites del tablero.
+        ******************************************************************************************************************/
         if (Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Pieza == TipoPieza.VACIA)
             return true;
         else
@@ -800,6 +918,13 @@ public class TDATablero {
     }
 
     private boolean MismoColor(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Función que comprueba si dos piezas son del mismo color.
+           Devuelve TRUE en caso afirmativo y FALSE en caso contrario.
+        
+        Se requieren las comprobaciones anteriores de (precondiciones):
+        -Comprobar que las direcciones no exceden los límites del tablero.
+        ******************************************************************************************************************/
         if (!DireccionVacia(Posicion2, Tablero) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Color))
             return true;
         else
@@ -807,6 +932,11 @@ public class TDATablero {
     }
 
     private boolean CapturaAlPaso(TipoTablero Tablero, TipoPosicion Origen, TipoPosicion Destino) {
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+          Función que comprueba si un peon puede comer al paso.
+          Devuelve TRUE en caso afirmativo y FALSE en caso negativo.
+          Origen y Destino son las posiciones de origen y destino respectivamente del peón que realiza la captura.
+        ******************************************************************************************************************/
         if (Tablero.Casilla[Destino.x - 1][Origen.y - 1].Pieza == TipoPieza.PEON) {
             if ((Tablero.UltimoMovimiento.Destino.x == Destino.x) && (Tablero.UltimoMovimiento.Destino.y == Origen.y) && (Tablero.UltimoMovimiento.Origen.x == Destino.x) && (Tablero.UltimoMovimiento.Origen.y == Destino.y))
                 return true;
@@ -817,6 +947,7 @@ public class TDATablero {
         }
     }
 
+    /* No se puede capturar al paso */
     private boolean Enroque(TipoTablero Tablero, TipoPosicion Posicion, int Tipo) {
         // VAR
         TipoPosicion PosicionTorreBlancaI = new TipoPosicion();
@@ -857,6 +988,7 @@ public class TDATablero {
         }
     }
 
+    /* Movimiento ilegal */
     private boolean DireccionValida(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
         switch (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza) {
             case PEON -> {
@@ -1014,6 +1146,7 @@ public class TDATablero {
         }
     }
 
+    /* Movimiento ilegal */
     private boolean CaminoDespejado(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
         // VAR
         TipoPosicion Actual = new TipoPosicion();
@@ -1126,12 +1259,17 @@ public class TDATablero {
         }
     }
 
+    /* La pieza es el rey y como sólo se mueve una posición no puede haber obstáculos */
+    /* Si la pieza es un caballo, no hace falta comprobación */
     public void PosicionRey(TipoTablero Tablero, TipoColor Color, /* VAR */ TipoPosicion Posicion) {
         // VAR
         int i = 0;
         int j = 0;
         boolean Encontrado = false;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        	Devuelve la posición del rey del color elegido.
+        ******************************************************************************************************************/
         i = 1;
         Encontrado = false;
         while ((i <= Tablero.Ancho) && (!Encontrado)) {
@@ -1152,6 +1290,9 @@ public class TDATablero {
         // VAR
         TipoPosicion Posicion = new TipoPosicion(); /* WRT */
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        	Devuelve TRUE en caso de que el rey elegido esté en jaque y FALSE en caso contrario.
+        ******************************************************************************************************************/
         PosicionRey(Tablero, Color, Posicion);
         if (PiezaAmenazada(Posicion, Tablero))
             return true;
@@ -1163,6 +1304,9 @@ public class TDATablero {
         // VAR
         TipoTablero TableroTemp = new TipoTablero(); /* WRT */
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        	Devuelve TRUE si tras la jugada de posición 1 a posición 2 el rey está enjaque y FALSE en caso contrario.
+        ******************************************************************************************************************/
         CopiarTablero(Tablero, TableroTemp);
         MoverPieza(Posicion1, Posicion2, TableroTemp, false, false);
         if (ReyEnJaque(TableroTemp, Color))
@@ -1233,6 +1377,10 @@ public class TDATablero {
     }
 
     private int PuntuacionTablero_Auxiliar1(int num, TipoTablero Tablero) {
+        /* 
+        		Devuelve números de forma ascendente hasta la mitad (Ancho) y descendentes a partir de la mitad. P.ej.:
+        		1 2 3 4 4 3 2 1 ...
+        	*/
         if (num > (Tablero.Ancho / 2))
             return (Tablero.Ancho + 1 - num);
         else
@@ -1240,6 +1388,10 @@ public class TDATablero {
     }
 
     private int PuntuacionTablero_Auxiliar2(int num, TipoTablero Tablero) {
+        /*
+        		Devuelve números de forma ascendente hasta la mitad (Alto) y descendentes a partir de la mitad. P.ej.:
+        		1 2 3 4 4 3 2 1 ...
+        	*/
         if (num > (Tablero.Alto / 2))
             return (Tablero.Alto + 1 - num);
         else
@@ -1483,6 +1635,7 @@ public class TDATablero {
                 }
             }
         }
+        /* Casilla vacía */
         if (!reyblanco) {
             if (Jugador == TipoColor.NEGRO)
                 Puntuacion = Short.MAX_VALUE /* MAX(INTEGER) */;
@@ -1499,6 +1652,11 @@ public class TDATablero {
         return Puntuacion;
     }
 
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★    Funciones para representación en modo texto      ****************************/
+    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
     public void ImprimirTablero(TipoTablero Tablero, boolean Debug) {
         // CONST
         final boolean Numeracion = true;
@@ -1508,6 +1666,10 @@ public class TDATablero {
         int j = 0;
         char Temp = (char) 0;
 
+        /* Leer casillas */
+        /* Si numeración es TRUE, se muestran las coordenadas */
+        /* Índices para la matriz */
+        /* Almacenamiento temporal para el tipo de pieza */
         inOut.WriteLn();
         for (j = (Tablero.Alto); j >= 1; j -= 1) {
             if (Numeracion)
@@ -1558,6 +1720,7 @@ public class TDATablero {
             }
             inOut.WriteLn();
         }
+        /* Casilla vacía */
         if (Numeracion) {
             inOut.WriteLn();
             inOut.WriteString("     ");
@@ -1565,6 +1728,7 @@ public class TDATablero {
                 inOut.WriteInt(i, 1);
             }
         }
+        /* Escribe la numeración inferior */
         inOut.WriteLn();
         inOut.WriteLn();
         if (Debug) {
@@ -1625,6 +1789,11 @@ public class TDATablero {
         int numero = 0;
         int total = 0;
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
+           cada uno corresponde a una coordenada, dos de origen y dos de destino.
+           No se hacen comprobaciones.
+        ******************************************************************************************************************/
         total = 0;
         for (i = 0; i <= NumDigitos; i++) {
             if (('0' < Runtime.getChar(Texto, i)) && (Runtime.getChar(Texto, i) < '9')) {
@@ -1642,6 +1811,11 @@ public class TDATablero {
         // VAR
         Runtime.Ref<String> Buffer = new Runtime.Ref<>("");
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
+           cada uno corresponde a una coordenada, dos de origen y dos de destino.
+           No se hacen comprobaciones.
+        ******************************************************************************************************************/
         inOut.ReadString(Buffer);
         Movimiento.Origen.x = TextoANumero(Buffer.get(), MAXBUFFER);
         inOut.ReadString(Buffer);
@@ -1656,11 +1830,16 @@ public class TDATablero {
         // VAR
         Runtime.Ref<Character> Letra = new Runtime.Ref<>((char) 0);
 
+        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+           Muestra el menú de selección de pieza
+        ******************************************************************************************************************/
         inOut.WriteString("Promoción del peón");
         inOut.WriteLn();
+        /* Mostrar piezas */
         inOut.WriteString("Elige una pieza entre las siguientes: D A C T");
         inOut.WriteLn();
         inOut.Read(Letra);
+        /* Lee el último salto de linea */
         inOut.Read(Letra);
         switch (Letra.get()) {
             case 'D' -> {

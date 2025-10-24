@@ -128,12 +128,14 @@ public class Modula2Chess {
         Arguments.instance().begin();
 
         EnJuego = true;
+        /* Versión y autor */
         inOut.WriteString("*******AJEDREZ 1.0*******");
         inOut.WriteLn();
         inOut.WriteString("Por Javier Callón Álvarez");
         inOut.WriteLn();
         inOut.WriteString("*************************");
         inOut.WriteLn();
+        /* Si no se han escrito argumentos */
         if (LeerArgumento(1, new Runtime.FieldRef<>(this::getArgumento, this::setArgumento))) {
             inOut.WriteString("Uso: ");
             inOut.WriteLn();
