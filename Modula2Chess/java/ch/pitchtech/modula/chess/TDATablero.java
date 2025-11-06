@@ -1,8 +1,8 @@
 package ch.pitchtech.modula.chess;
 
-import ch.pitchtech.modula.library.InOut;
-import ch.pitchtech.modula.library.Storage;
-import ch.pitchtech.modula.library.TextIO;
+import ch.pitchtech.modula.library.mocka.InOut;
+import ch.pitchtech.modula.library.mocka.Storage;
+import ch.pitchtech.modula.library.mocka.TextIO;
 import ch.pitchtech.modula.runtime.Runtime;
 
 

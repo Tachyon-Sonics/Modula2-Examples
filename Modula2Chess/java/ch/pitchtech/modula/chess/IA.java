@@ -2,9 +2,9 @@ package ch.pitchtech.modula.chess;
 
 import ch.pitchtech.modula.chess.TDATablero.TipoColor;
 import ch.pitchtech.modula.chess.TDATablero.TipoPieza;
-import ch.pitchtech.modula.library.Clock;
-import ch.pitchtech.modula.library.InOut;
-import ch.pitchtech.modula.library.Storage;
+import ch.pitchtech.modula.library.mocka.Clock;
+import ch.pitchtech.modula.library.mocka.InOut;
+import ch.pitchtech.modula.library.mocka.Storage;
 import ch.pitchtech.modula.runtime.Runtime;
 
 

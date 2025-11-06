@@ -1,7 +1,7 @@
 package ch.pitchtech.modula.chess;
 
 import ch.pitchtech.modula.chess.TDATablero.TipoColor;
-import ch.pitchtech.modula.library.*;
+import ch.pitchtech.modula.library.mocka.*;
 import ch.pitchtech.modula.runtime.HaltException;
 import ch.pitchtech.modula.runtime.Runtime;
 
