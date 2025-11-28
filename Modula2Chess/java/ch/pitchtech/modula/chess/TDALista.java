@@ -76,25 +76,25 @@ public class TDALista {
     }
 
 
-/*
- Copyright 2003 Javier Callón Álvarez
- 
- This file is part of Modula2Chess.
- 
- Modula2Chess is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- any later version.
- 
- Modula2Chess is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with Modula2Chess; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- */
+    /*
+     Copyright 2003 Javier Callón Álvarez
+     
+     This file is part of Modula2Chess.
+     
+     Modula2Chess is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; either version 2 of the License, or
+     any later version.
+     
+     Modula2Chess is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with Modula2Chess; if not, write to the Free Software
+     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+     */
     // TYPE
 
     private static class TipoBasura { // RECORD
@@ -187,12 +187,14 @@ public class TDALista {
         }
     }
 
+    /* Elimina la memoria que ha sido usada y ya no es necesaria */
     public void CantidadBasura() {
         inOut.WriteString("La cantidad de basura es ");
         inOut.WriteInt(BASURA.ultimo, 1);
         inOut.WriteLn();
     }
 
+    /* Muestra la cantidad de basura que hay */
     /* Procedimientos generales */
     public void Insertar(/* VAR */ TipoLista L, TDATablero.TipoDatos x, int p) {
         // VAR
@@ -208,6 +210,8 @@ public class TDALista {
         AnadirBasura(x);
     }
 
+    /* Inserta un elemento, x, en una posicion p de L, pasando los elementos
+     de la posicion p y siguientes a la posicion inmediatamente posterior */
     public void Recuperar(/* var */ TipoLista L, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> x, int p, /* VAR */ Runtime.IRef<Boolean> encontrado) {
         // VAR
         int i = 0;
@@ -222,6 +226,8 @@ public class TDALista {
         }
     }
 
+    /* Encuentra el elemento x que esta en la posicion p, si la posicion p es
+    mayor que el numero de elementos de L, devuelve a encontrado FALSE */
     public void Suprimir(/* VAR */ TipoLista L, int p) {
         // VAR
         int i = 0;
@@ -233,26 +239,32 @@ public class TDALista {
         L.ultimo = L.ultimo - 1;
     }
 
+    /* Elimina de L el elemento de la posicion p */
     public void Anula(/* VAR */ TipoLista L) {
         /* Vacía L */
         L.ultimo = 0;
     }
 
+    /* Vacía L */
     public void Primero(/* var */ TipoLista L, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> x) {
         /* De vuelve el primer elemento de L */
         x.set(L.elemento[0]);
     }
 
+    /* Devuelve el primer elemento de L */
     public void Ultimo(/* var */ TipoLista L, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> x) {
         /* Devuelve el ultimo elemento de L */
         x.set(L.elemento[L.ultimo - 1]);
     }
 
+    /* Devuelve el ultimo elemento de L */
     public void InicializarLista(/* VAR */ TipoLista L) {
         /* Función que "Devuelve una lista vacía") */
         L.ultimo = 0;
     }
 
+    /* Función que "Devuelve una lista vacía") */
+    /* Añade el elemento x al principio de la lista L (pila) */
     public void AnadirFIFO(TDATablero.TipoDatos x, /* VAR+WRT */ TipoLista L) {
         /* Añade el elemento x al final de la lista L (cola) */
         Insertar(L, x, L.ultimo + 1);
@@ -263,11 +275,13 @@ public class TDALista {
         Insertar(L, x, 1);
     }
 
+    /* Añade el elemento x al final de la lista L (cola) */
     public void Resto(/* VAR+WRT */ TipoLista L) {
         /* Elimina el primer elemento de la lista */
         Suprimir(L, 1);
     }
 
+    /* Elimina el primer elemento de la lista */
     public boolean Vacia(/* var */ TipoLista L) {
         /* Comprueba que en la lista hay algún elemento */
         if (L.ultimo == 0)
@@ -276,6 +290,7 @@ public class TDALista {
             return false;
     }
 
+    /* Comprueba que en la lista hay algún elemento */
     public void Elemento(int p, /* VAR+WRT */ TipoLista L, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> e) {
         // VAR
         Runtime.Ref<TDATablero.TipoDatos> x = new Runtime.Ref<>(null);

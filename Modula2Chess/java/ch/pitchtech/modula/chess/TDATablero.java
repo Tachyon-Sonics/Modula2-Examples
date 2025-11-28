@@ -380,27 +380,30 @@ public class TDATablero {
     }
 
 
-/*
- Copyright 2003 Javier Callón Álvarez
- 
- This file is part of Modula2Chess.
- 
- Modula2Chess is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- any later version.
- 
- Modula2Chess is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with Modula2Chess; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- */
+    /*
+     Copyright 2003 Javier Callón Álvarez
+     
+     This file is part of Modula2Chess.
+     
+     Modula2Chess is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; either version 2 of the License, or
+     any later version.
+     
+     Modula2Chess is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with Modula2Chess; if not, write to the Free Software
+     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+     */
     // PROCEDURE
 
+    /* ************************************************************************************************************/
+    /* ***************************    Funciones generales para el manejo de tableros     **************************/
+    /* ************************************************************************************************************/
     /* ************************************************************************************************************/
     /* ***************************    Funciones generales para el manejo de tableros     **************************/
     /* ************************************************************************************************************/
@@ -428,6 +431,13 @@ public class TDATablero {
         }
     }
 
+    /* ****************************************************************************************************************
+    	Determina si el jugador especificado por Color está en jaque mate.
+    	Devuelve:
+    		0: Si no hay jaque mate ni el rey está ahogado;
+    		1: Si es jaque mate;
+    		2: Si el rey está ahogado;
+    ******************************************************************************************************************/
     public boolean EsMate(TipoTablero Tablero) {
         /* ****************************************************************************************************************
         	Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
@@ -438,6 +448,9 @@ public class TDATablero {
             return false;
     }
 
+    /* ****************************************************************************************************************
+       Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
+    ******************************************************************************************************************/
     public void CopiarTablero(TipoTablero Tablero1, /* VAR */ TipoTablero Tablero2) {
         // VAR
         int i = 0;
@@ -468,6 +481,10 @@ public class TDATablero {
         Tablero2.UltimaCaptura.copyFrom(Tablero1.UltimaCaptura);
     }
 
+    /* ****************************************************************************************************************
+       Copia el contenido del primer tablero al segundo. 
+       Los dos tableros deben tener las mismas dimensiones. (Precondición)
+    ******************************************************************************************************************/
     public boolean LeerTablero(/* VAR */ TipoTablero Tablero, /* WRT */ String _Archivo) {
         Runtime.Ref<String> Archivo = new Runtime.Ref<>(_Archivo);
 
@@ -791,6 +808,10 @@ public class TDATablero {
         Tablero.UltimoMovimiento.Destino.y = Posicion2.y;
     }
 
+    /* ****************************************************************************************************************
+      Mueve la pieza de la casilla Posicion1 a la casilla Posicion2 sin hacer comprobaciones.
+      Las comprobaciones deben hacerse anteriormente (precondición)
+    *******************************************************************************************************************/
     public boolean PiezaAmenazada(TipoPosicion Posicion, TipoTablero Tablero) {
         // VAR
         TipoPosicion Actual = new TipoPosicion();
@@ -1505,6 +1526,10 @@ public class TDATablero {
         }
     }
 
+    /* ****************************************************************************************************************
+       Devuelve el valor TRUE si alguna pieza está amenazando la posición suministrada como parámetro y FALSE en 
+       caso contrario.
+    ******************************************************************************************************************/
     public void PosicionRey(TipoTablero Tablero, TipoColor Color, /* VAR */ TipoPosicion Posicion) {
         // VAR
         int i = 0;
@@ -1530,6 +1555,9 @@ public class TDATablero {
         }
     }
 
+    /* ****************************************************************************************************************
+    	Devuelve la posición del rey del color elegido.
+    ******************************************************************************************************************/
     public boolean ReyEnJaque(TipoTablero Tablero, TipoColor Color) {
         // VAR
         TipoPosicion Posicion = new TipoPosicion(); /* WRT */
@@ -1544,6 +1572,9 @@ public class TDATablero {
             return false;
     }
 
+    /* ****************************************************************************************************************
+       Devuelve TRUE en caso de que el rey elegido esté en jaque y FALSE en caso contrario.
+    ******************************************************************************************************************/
     public boolean ReyEnJaque2(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero, TipoColor Color) {
         // VAR
         TipoTablero TableroTemp = new TipoTablero(); /* WRT */
@@ -1559,6 +1590,9 @@ public class TDATablero {
             return false;
     }
 
+    /* ****************************************************************************************************************
+    	Devuelve TRUE si tras la jugada de posición 1 a posición 2 el rey está en jaque y FALSE en caso contrario.
+    ******************************************************************************************************************/
     public boolean MovimientoLegal(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero, boolean Debug) {
         /* ****************************************************************************************************************
            Devuelve TRUE en caso de que el movimiento sea legal y False en caso contrario.
@@ -2019,6 +2053,11 @@ public class TDATablero {
     /* ************************************************************************************************************/
     /* ***************************    Funciones para representación en modo texto      ****************************/
     /* ************************************************************************************************************/
+    /* ************************************************************************************************************/
+    /* ************************************************************************************************************/
+    /* ************************************************************************************************************/
+    /* ***************************    Funciones para representación en modo texto      ****************************/
+    /* ************************************************************************************************************/
     public void ImprimirTablero(TipoTablero Tablero, boolean Debug) {
         // CONST
         final boolean Numeracion = true;
@@ -2171,6 +2210,11 @@ public class TDATablero {
         return total;
     }
 
+    /* ****************************************************************************************************************
+       Imprime un tablero en la salida estandar.
+       Si Debug es TRUE, muestra información adicional:
+    	alto, ancho, última jugada y piezas (reyes y torres) movidas.
+    ******************************************************************************************************************/
     public void LeerMovimiento(/* var */ TipoMovimiento Movimiento) {
         // CONST
         final int MAXBUFFER = 4;
@@ -2193,6 +2237,11 @@ public class TDATablero {
         Movimiento.Destino.y = TextoANumero(Buffer.get(), MAXBUFFER);
     }
 
+    /* ****************************************************************************************************************
+       Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
+       cada uno corresponde a una coordenada, dos de origen y dos de destino.
+       No se hacen comprobaciones.
+    ******************************************************************************************************************/
     public void ElegirPieza(/* VAR+WRT */ Runtime.IRef<TipoPieza> Pieza) {
         // VAR
         Runtime.Ref<Character> Letra = new Runtime.Ref<>((char) 0);
