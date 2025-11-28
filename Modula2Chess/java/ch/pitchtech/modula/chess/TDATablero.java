@@ -182,6 +182,7 @@ public class TDATablero {
         public int Ancho;
         public TipoCasilla[][] Casilla = Runtime.initArray(new TipoCasilla[MAXALTO][MAXANCHO]);
         public TipoMovimiento UltimoMovimiento = new TipoMovimiento();
+        /* Necesario para enroques */
         public boolean ReyBlancoMovido;
         public boolean TorreIBlancaMovida;
         public boolean TorreDBlancaMovida;
@@ -301,8 +302,6 @@ public class TDATablero {
         }
 
     }
-
-    /* Necesario para enroques */
 
     public static class TipoDatos { // RECORD
 
