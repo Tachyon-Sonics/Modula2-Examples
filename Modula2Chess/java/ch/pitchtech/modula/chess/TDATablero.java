@@ -44,10 +44,8 @@ public class TDATablero {
     // CONST
 
     public static final int MAXALTO = 8;
-    /* ************************************************************************************************************/
     public static final int MAXANCHO = 8;
-    /* ***************************    Funciones generales para el manejo de tableros     **************************/
-    /* ************************************************************************************************************/
+    /* Constantes para representación con SDL */
     public static final int DespX = 0;
     public static final int DespY = 60;
     public static final int TamanhoCasilla = 60;
@@ -55,13 +53,6 @@ public class TDATablero {
 
     // TYPE
 
-    /* ****************************************************************************************************************
-    	Determina si el jugador especificado por Color está en jaque mate.
-    	Devuelve:
-    		0: Si no hay jaque mate ni el rey está ahogado;
-    		1: Si es jaque mate;
-    		2: Si el rey está ahogado;
-    ******************************************************************************************************************/
     public static class TipoPosicion { // RECORD
 
         public int x;
@@ -103,7 +94,6 @@ public class TDATablero {
         BLANCO;
     }
 
-    /* Si se puede hacer alguna jugada */
     public static enum TipoPieza {
         VACIA,
         PEON,
@@ -150,8 +140,6 @@ public class TDATablero {
 
     }
 
-    /* Si no se pueden hacer jugadas */
-    /* No se puede hacer ningún movimiento pero el rey no está en jaque */
     public static class TipoMovimiento { // RECORD
 
         public TipoPosicion Origen = new TipoPosicion();
@@ -314,9 +302,7 @@ public class TDATablero {
 
     }
 
-    /* ****************************************************************************************************************
-    	Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
-    ******************************************************************************************************************/
+    /* Necesario para enroques */
 
     public static class TipoDatos { // RECORD
 
@@ -395,15 +381,47 @@ public class TDATablero {
     }
 
 
+/*
+Copyright 2003 Javier Callón Álvarez
+
+This file is part of Modula2Chess.
+
+Modula2Chess is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+any later version.
+
+Modula2Chess is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Modula2Chess; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
     // PROCEDURE
 
+    /* ************************************************************************************************************/
+    /* ***************************    Funciones generales para el manejo de tableros     **************************/
+    /* ************************************************************************************************************/
     public int JaqueMate(TipoTablero Tablero, TipoColor Color) {
+        /* ****************************************************************************************************************
+        	Determina si el jugador especificado por Color está en jaque mate.
+        	Devuelve:
+        		0: Si no hay jaque mate ni el rey está ahogado;
+        		1: Si es jaque mate;
+        		2: Si el rey está ahogado;
+        ******************************************************************************************************************/
         if (iA.JugadasPosibles(Tablero, Color)) {
+            /* Si se puede hacer alguna jugada */
             return 0;
         } else {
+            /* Si no se pueden hacer jugadas */
             if (ReyEnJaque(Tablero, Color)) {
                 return 1;
             } else {
+                /* No se puede hacer ningún movimiento pero el rey no está en jaque */
                 inOut.WriteString("Rey ahogado");
                 inOut.WriteLn();
                 return 2;
@@ -412,6 +430,9 @@ public class TDATablero {
     }
 
     public boolean EsMate(TipoTablero Tablero) {
+        /* ****************************************************************************************************************
+        	Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
+        ******************************************************************************************************************/
         if (Tablero.UltimaCaptura.Pieza == TipoPieza.REY)
             return true;
         else
