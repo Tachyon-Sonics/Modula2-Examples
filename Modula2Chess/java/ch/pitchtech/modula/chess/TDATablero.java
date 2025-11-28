@@ -404,6 +404,13 @@ public class TDATablero {
     /* ************************************************************************************************************/
     /* ***************************    Funciones generales para el manejo de tableros     **************************/
     /* ************************************************************************************************************/
+    /* ****************************************************************************************************************
+    	Determina si el jugador especificado por Color está en jaque mate.
+    	Devuelve:
+    		0: Si no hay jaque mate ni el rey está ahogado;
+    		1: Si es jaque mate;
+    		2: Si el rey está ahogado;
+    ******************************************************************************************************************/
     /* ************************************************************************************************************/
     /* ***************************    Funciones generales para el manejo de tableros     **************************/
     /* ************************************************************************************************************/
@@ -432,11 +439,7 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-    	Determina si el jugador especificado por Color está en jaque mate.
-    	Devuelve:
-    		0: Si no hay jaque mate ni el rey está ahogado;
-    		1: Si es jaque mate;
-    		2: Si el rey está ahogado;
+       Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
     ******************************************************************************************************************/
     public boolean EsMate(TipoTablero Tablero) {
         /* ****************************************************************************************************************
@@ -449,7 +452,8 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-       Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
+       Copia el contenido del primer tablero al segundo. 
+       Los dos tableros deben tener las mismas dimensiones. (Precondición)
     ******************************************************************************************************************/
     public void CopiarTablero(TipoTablero Tablero1, /* VAR */ TipoTablero Tablero2) {
         // VAR
@@ -482,8 +486,27 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-       Copia el contenido del primer tablero al segundo. 
-       Los dos tableros deben tener las mismas dimensiones. (Precondición)
+    Lee un tablero guardado en un archivo con el siguiente formato:
+    -Alto
+    -Ancho
+    -Matriz de piezas:
+    	R -> REY
+    	D -> DAMA
+    	T -> TORRE
+    	A -> ALFIL
+    	C -> CABALLO
+    	P -> PEON
+    	V -> Casilla vacía.
+      * Se representan con mayúscula las piezas negras y con minúscula las piezas blancas.
+    -Coordenadas del último movimiento, por ejemplo:
+    	4 2 6 4
+     representaría el movimiento de la pieza que está en 4,2 a la posición 6,4
+    -Valores booleanos que representan si se han movido alguna vez las siguientes piezas por este orden:
+     Rey blanco, torre blanca izquierda, torre blanca derecha, rey negro, torre negra izquierda, 
+     torre negra derecha. Por ejemplo:
+     0 0 1 1 1 0
+    
+    Devuelve TRUE en caso de error y FALSE en caso de no existir error en la lectura.
     ******************************************************************************************************************/
     public boolean LeerTablero(/* VAR */ TipoTablero Tablero, /* WRT */ String _Archivo) {
         Runtime.Ref<String> Archivo = new Runtime.Ref<>(_Archivo);
@@ -676,6 +699,10 @@ public class TDATablero {
         return false;
     }
 
+    /* ****************************************************************************************************************
+      Mueve la pieza de la casilla Posicion1 a la casilla Posicion2 sin hacer comprobaciones.
+      Las comprobaciones deben hacerse anteriormente (precondición)
+    *******************************************************************************************************************/
     public void MoverPieza(TipoPosicion Posicion1, TipoPosicion Posicion2, /* VAR */ TipoTablero Tablero, boolean Humano, boolean SDL) {
         // VAR
         TipoPosicion OrigenTorre = new TipoPosicion();
@@ -809,9 +836,9 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-      Mueve la pieza de la casilla Posicion1 a la casilla Posicion2 sin hacer comprobaciones.
-      Las comprobaciones deben hacerse anteriormente (precondición)
-    *******************************************************************************************************************/
+       Devuelve el valor TRUE si alguna pieza está amenazando la posición suministrada como parámetro y FALSE en 
+       caso contrario.
+    ******************************************************************************************************************/
     public boolean PiezaAmenazada(TipoPosicion Posicion, TipoTablero Tablero) {
         // VAR
         TipoPosicion Actual = new TipoPosicion();
@@ -1527,8 +1554,7 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-       Devuelve el valor TRUE si alguna pieza está amenazando la posición suministrada como parámetro y FALSE en 
-       caso contrario.
+    	Devuelve la posición del rey del color elegido.
     ******************************************************************************************************************/
     public void PosicionRey(TipoTablero Tablero, TipoColor Color, /* VAR */ TipoPosicion Posicion) {
         // VAR
@@ -1556,7 +1582,7 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-    	Devuelve la posición del rey del color elegido.
+       Devuelve TRUE en caso de que el rey elegido esté en jaque y FALSE en caso contrario.
     ******************************************************************************************************************/
     public boolean ReyEnJaque(TipoTablero Tablero, TipoColor Color) {
         // VAR
@@ -1573,7 +1599,7 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-       Devuelve TRUE en caso de que el rey elegido esté en jaque y FALSE en caso contrario.
+    	Devuelve TRUE si tras la jugada de posición 1 a posición 2 el rey está en jaque y FALSE en caso contrario.
     ******************************************************************************************************************/
     public boolean ReyEnJaque2(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero, TipoColor Color) {
         // VAR
@@ -1591,7 +1617,17 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-    	Devuelve TRUE si tras la jugada de posición 1 a posición 2 el rey está en jaque y FALSE en caso contrario.
+       Devuelve TRUE en caso de que el movimiento sea legal y False en caso contrario.
+    
+    Se hacen las siguientes comprobaciones:
+    -Comprobar que las direcciones no exceden los límites del tablero.
+    -Comprobar que las direcciones de origen y destino no son iguales.
+    -Comprobar que la dirección de origen no está vacía.
+    -Comprobar que la dirección de destino no contiene una pieza del mismo color.
+    -Comprobar que la dirección del movimiento es posible.
+    -Comprobar que no existen obstáculos para realizar la jugada.
+    ** La comprobación de que el rey no está amenazado se hace en "ReyEnJaque2"
+    ** La poda por estar el rey en jaque se hace en el procedimiento de generación de jugadas
     ******************************************************************************************************************/
     public boolean MovimientoLegal(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero, boolean Debug) {
         /* ****************************************************************************************************************
@@ -1732,6 +1768,23 @@ public class TDATablero {
             return valy - 1;
     }
 
+    /* ****************************************************************************************************************
+       Función que estima la bondad de una situación del tablero para un Jugador.
+    
+    100 por cada peon,
+    315 por cada caballo, 
+    330 por cada alfil, 
+    500 por cada torre, 
+    940 por cada dama,
+    máximo por el rey,
+    1 punto por cada casilla a la que se puedan mover los alfiles, 
+    1 punto por cada casilla a la que se puedan mover las torres, 
+    Da mayor puntuación el mover los peones centrales (casillas avanzadas * posición(1 lateral a 4 central)), 
+    De 0 hasta 9 gradualmente por la posicion de cada caballo (desde un rincon del tablero hasta el centro), 
+    De 0 a 9 gradualmente por la posicion de la dama (desde un rincon hasta el centro), 
+    -20 por peon doblado, 
+    bonus gradual para la posicion del rey, en la apertura mientras más cerca del centro es más malo y en los finales de partida (poco material) al revés. 
+    ******************************************************************************************************************/
     public int PuntuacionTablero(TipoTablero Tablero, TipoColor Jugador) {
         // VAR
         boolean reyblanco = false;
@@ -2053,6 +2106,11 @@ public class TDATablero {
     /* ************************************************************************************************************/
     /* ***************************    Funciones para representación en modo texto      ****************************/
     /* ************************************************************************************************************/
+    /* ****************************************************************************************************************
+       Imprime un tablero en la salida estandar.
+       Si Debug es TRUE, muestra información adicional:
+    	alto, ancho, última jugada y piezas (reyes y torres) movidas.
+    ******************************************************************************************************************/
     /* ************************************************************************************************************/
     /* ************************************************************************************************************/
     /* ************************************************************************************************************/
@@ -2211,9 +2269,9 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-       Imprime un tablero en la salida estandar.
-       Si Debug es TRUE, muestra información adicional:
-    	alto, ancho, última jugada y piezas (reyes y torres) movidas.
+       Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
+       cada uno corresponde a una coordenada, dos de origen y dos de destino.
+       No se hacen comprobaciones.
     ******************************************************************************************************************/
     public void LeerMovimiento(/* var */ TipoMovimiento Movimiento) {
         // CONST
@@ -2238,9 +2296,7 @@ public class TDATablero {
     }
 
     /* ****************************************************************************************************************
-       Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
-       cada uno corresponde a una coordenada, dos de origen y dos de destino.
-       No se hacen comprobaciones.
+       Muestra el menú de selección de pieza
     ******************************************************************************************************************/
     public void ElegirPieza(/* VAR+WRT */ Runtime.IRef<TipoPieza> Pieza) {
         // VAR

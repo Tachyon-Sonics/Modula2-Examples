@@ -209,6 +209,10 @@ public class IA {
         PtrTablero2.get().Predecesor = PtrTablero1;
     }
 
+    /* ****************************************************************************************************************
+    	Devuelve TRUE en caso de que el jugador del color especificado pueda hacer algún movimiento y FALSE en caso 
+    	contrario.
+    ******************************************************************************************************************/
     public boolean JugadasPosibles(TDATablero.TipoTablero Tablero, TipoColor Color) {
         // VAR
         TDALista.TipoLista Lista = new TDALista.TipoLista(); /* WRT */
@@ -1283,8 +1287,7 @@ public class IA {
     }
 
     /* ****************************************************************************************************************
-    	Devuelve TRUE en caso de que el jugador del color especificado pueda hacer algún movimiento y FALSE en caso 
-    	contrario.
+    	El jugador Max hace un movimiento en el Tablero.
     ******************************************************************************************************************/
     public void Jugada(/* VAR+WRT */ TDATablero.TipoTablero Tablero, TipoColor Jugador, int Metodo) {
         // VAR
