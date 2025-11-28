@@ -25,10 +25,10 @@ public class TDATablero {
     // CONST
 
     public static final int MAXALTO = 8;
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
+    /* ************************************************************************************************************/
     public static final int MAXANCHO = 8;
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★    Funciones generales para el manejo de tableros     **************************/
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
+    /* ***************************    Funciones generales para el manejo de tableros     **************************/
+    /* ************************************************************************************************************/
     public static final int DespX = 0;
     public static final int DespY = 60;
     public static final int TamanhoCasilla = 60;
@@ -36,7 +36,7 @@ public class TDATablero {
 
     // TYPE
 
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    /* ****************************************************************************************************************
     	Determina si el jugador especificado por Color está en jaque mate.
     	Devuelve:
     		0: Si no hay jaque mate ni el rey está ahogado;
@@ -295,7 +295,7 @@ public class TDATablero {
 
     }
 
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    /* ****************************************************************************************************************
     	Devuelve TRUE en caso de haberse comido un rey y FALSE en caso contrario.
     ******************************************************************************************************************/
 
@@ -379,6 +379,25 @@ public class TDATablero {
     // PROCEDURE
 
     public int JaqueMate(TipoTablero Tablero, TipoColor Color) {
+        /*
+        Copyright 2003 Javier Callón Álvarez
+        
+        This file is part of Modula2Chess.
+        
+        Modula2Chess is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 2 of the License, or
+        any later version.
+        
+        Modula2Chess is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+        
+        You should have received a copy of the GNU General Public License
+        along with Modula2Chess; if not, write to the Free Software
+        Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+        */
         if (iA.JugadasPosibles(Tablero, Color)) {
             return 0;
         } else {
@@ -404,7 +423,7 @@ public class TDATablero {
         int i = 0;
         int j = 0;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Copia el contenido del primer tablero al segundo. 
            Los dos tableros deben tener las mismas dimensiones. (Precondición)
         ******************************************************************************************************************/
@@ -439,6 +458,29 @@ public class TDATablero {
         Runtime.Ref<Character> Temp = new Runtime.Ref<>((char) 0);
         Runtime.Ref<Integer> Temp2 = new Runtime.Ref<>(0);
 
+        /* ****************************************************************************************************************
+        Lee un tablero guardado en un archivo con el siguiente formato:
+        -Alto
+        -Ancho
+        -Matriz de piezas:
+        	R -> REY
+        	D -> DAMA
+        	T -> TORRE
+        	A -> ALFIL
+        	C -> CABALLO
+        	P -> PEON
+        	V -> Casilla vacía.
+          * Se representan con mayúscula las piezas negras y con minúscula las piezas blancas.
+        -Coordenadas del último movimiento, por ejemplo:
+        	4 2 6 4
+         representaría el movimiento de la pieza que está en 4,2 a la posición 6,4
+        -Valores booleanos que representan si se han movido alguna vez las siguientes piezas por este orden:
+         Rey blanco, torre blanca izquierda, torre blanca derecha, rey negro, torre negra izquierda, 
+         torre negra derecha. Por ejemplo:
+         0 0 1 1 1 0
+        
+        Devuelve TRUE en caso de error y FALSE en caso de no existir error en la lectura.
+        ******************************************************************************************************************/
         /* Índices para la matriz */
         /* Almacenamiento temporal para el tipo de pieza */
         /* Comprobar si existe el archivo y se puede escribir en él */
@@ -603,7 +645,7 @@ public class TDATablero {
         TipoPosicion DestinoTorre = new TipoPosicion();
         boolean PromocionPeon = false;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
           Mueve la pieza de la casilla Posicion1 a la casilla Posicion2 sin hacer comprobaciones.
           Las comprobaciones deben hacerse anteriormente (precondición)
         *******************************************************************************************************************/
@@ -683,6 +725,31 @@ public class TDATablero {
             if (((Posicion2.y == Tablero.Alto) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO)) || ((Posicion2.y == 1) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.NEGRO)))
                 PromocionPeon = true;
         }
+        /* Enroque a la derecha */
+        /* Mover Torre */
+        /* Copiar la casilla de origen a la casilla de destino */
+        /* Vaciar la casilla de origen */
+        /* Torre Movida */
+        /* Enroque a la izquierda */
+        /* Mover Torre */
+        /* Copiar la casilla de origen a la casilla de destino */
+        /* Vaciar la casilla de origen */
+        /* Torre Movida */
+        /* Enroque a la derecha */
+        /* Mover Torre */
+        /* Copiar la casilla de origen a la casilla de destino */
+        /* Vaciar la casilla de origen */
+        /* Torre Movida */
+        /* Enroque a la izquierda */
+        /* Mover Torre */
+        /* Copiar la casilla de origen a la casilla de destino */
+        /* Vaciar la casilla de origen */
+        /* Torre Movida */
+        /* Torre blanca izquierda */
+        /* Torre blanca derecha */
+        /* Torre negra izquierda */
+        /* Torre negra derecha */
+        /* El peón está comiendo al paso */
         /* Promoción del peón */
         /* Copiar la casilla de origen a la casilla de destino */
         if (PromocionPeon) {
@@ -708,7 +775,7 @@ public class TDATablero {
         // VAR
         TipoPosicion Actual = new TipoPosicion();
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Devuelve el valor TRUE si alguna pieza está amenazando la posición suministrada como parámetro y FALSE en 
            caso contrario.
         ******************************************************************************************************************/
@@ -818,6 +885,7 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Arriba-Arriba-Derecha */
         /* Arriba-Arriba-Izquierda */
         if ((Posicion.y - 2) >= 1) {
             Actual.y = Posicion.y - 2;
@@ -832,6 +900,7 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Abajo-Abajo-Derecha */
         /* Abajo-Abajo-Izquierda */
         if ((Posicion.x - 2) >= 1) {
             Actual.x = Posicion.x - 2;
@@ -846,6 +915,7 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Izquierda-Izquierda-Arriba */
         /* Izquierda-Izquierda-Abajo */
         if ((Posicion.x + 2) <= Tablero.Ancho) {
             Actual.x = Posicion.x + 2;
@@ -860,6 +930,8 @@ public class TDATablero {
                     return true;
             }
         }
+        /* Derecha-Derecha-Arriba */
+        /* Derecha-Derecha-Abajo */
         /* El llegar hasta este punto sin haber encontrado ninguna pieza que amenace la posición original supone
         	   que la pieza no está amenazada */
         return false;
@@ -869,7 +941,7 @@ public class TDATablero {
         // VAR
         TipoTablero TableroTemp = new TipoTablero(); /* WRT */
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
         	Devuelve el valor TRUE si está amenazada la pieza en la posición 1 al moverla y FALSE caso contrario.
         ******************************************************************************************************************/
         CopiarTablero(Tablero, TableroTemp);
@@ -881,7 +953,7 @@ public class TDATablero {
     }
 
     private boolean JugadaEnTablero(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Devuelve el valor TRUE si las posiciones de la jugada no exceden los límites del tablero y
            devuelve FALSE en caso contrario.
         ******************************************************************************************************************/
@@ -893,7 +965,7 @@ public class TDATablero {
 
     /* Las posiciones están dentro de los límites del tablero */
     private boolean PosicionesIguales(TipoPosicion Posicion1, TipoPosicion Posicion2) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
         Si las posiciones son iguales, devuelve TRUE, en caso contrario devuelve FALSE
         
         Se requieren las comprobaciones anteriores de (precondiciones):
@@ -906,7 +978,7 @@ public class TDATablero {
     }
 
     private boolean DireccionVacia(TipoPosicion Posicion, TipoTablero Tablero) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Devuelve TRUE si no hay una pieza en la posicion, en caso contrario devuelve FALSE.
         Se requieren las comprobaciones anteriores de (precondiciones):
         -Comprobar que la dirección no excede los límites del tablero.
@@ -918,7 +990,7 @@ public class TDATablero {
     }
 
     private boolean MismoColor(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Función que comprueba si dos piezas son del mismo color.
            Devuelve TRUE en caso afirmativo y FALSE en caso contrario.
         
@@ -932,7 +1004,7 @@ public class TDATablero {
     }
 
     private boolean CapturaAlPaso(TipoTablero Tablero, TipoPosicion Origen, TipoPosicion Destino) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
           Función que comprueba si un peon puede comer al paso.
           Devuelve TRUE en caso afirmativo y FALSE en caso negativo.
           Origen y Destino son las posiciones de origen y destino respectivamente del peón que realiza la captura.
@@ -955,6 +1027,13 @@ public class TDATablero {
         TipoPosicion PosicionTorreNegraI = new TipoPosicion();
         TipoPosicion PosicionTorreNegraD = new TipoPosicion();
 
+        /* Hay un peón en la posición adecuada */
+        /* Hay un peon en la posición contigüa que en el anterior movimiento avanzó una casilla */
+        /* ****************************************************************************************************************
+          Función que comprueba si se puede hacer un enroque.
+          Devuelve TRUE en caso afirmativo y FALSE en caso negativo.
+          La variable Tipo representa si se trata de un enroque corto o largo (1 largo, 2 corto).
+        ******************************************************************************************************************/
         PosicionTorreBlancaI.x = 1;
         PosicionTorreBlancaI.y = 1;
         PosicionTorreBlancaD.x = Tablero.Ancho;
@@ -990,6 +1069,27 @@ public class TDATablero {
 
     /* Movimiento ilegal */
     private boolean DireccionValida(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
+        /* La pieza a mover es blanca */
+        /* Si el rey no ha sido movido y no está amenazado */
+        /* Enroque largo y torre izquierda no movida y no amenazada */
+        /* Enroque corto y torre derecha no movida y no amenazada */
+        /* Movimiento ilegal */
+        /* Movimiento ilegal */
+        /* La pieza a mover es negra */
+        /* Si el rey no ha sido movido y no está amenazado */
+        /* Enroque largo y torre izquierda no movida y no amenazada */
+        /* Enroque corto y torre derecha no movida y no amenazada */
+        /* Movimiento ilegal */
+        /* ****************************************************************************************************************
+           Función que valida la dirección de un movimiento.
+           Devuelve TRUE para los casos válidos y FALSE para movimientos no válidos.
+        
+        Se requieren las comprobaciones anteriores de (precondiciones):
+        -Comprobar que las direcciones no exceden los límites del tablero.
+        -Comprobar que las direcciones de origen y destino no son iguales.
+        -Comprobar que la dirección de origen no está vacía.
+        -Comprobar que la dirección de destino no contiene una pieza del mismo color.
+        ******************************************************************************************************************/
         switch (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza) {
             case PEON -> {
                 if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO) {
@@ -1152,6 +1252,87 @@ public class TDATablero {
         TipoPosicion Actual = new TipoPosicion();
         int Indice = 0;
 
+        /* La pieza a mover es blanca */
+        /* Se mantiene en la misma columna */
+        /* Avanzar una casilla */
+        /* Avanzar dos casillas */
+        /* Si se mantiene en la misma columna y se se hace un movimiento que no sea
+        					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal */
+        /* Avanzar en diagonal para capturas */
+        /* Captura hacia la derecha */
+        /* En la posición de destino hay un peon */
+        /* Se puede capturar al paso */
+        /* Si no se puede hacer una captura */
+        /* Captura hacia la izquierda */
+        /* En la posición de destino hay un peon */
+        /* Se puede capturar al paso */
+        /* Si no existe un peón que se pueda capturar */
+        /* Si se avanza una posición y se mueve lateralmente más de una posicion es
+        					   un movimiento ilegal */
+        /* Movimiento ilegal */
+        /* La pieza a mover es negra */
+        /* Se mantiene en la misma columna */
+        /* Avanzar una casilla */
+        /* Avanzar dos casillas */
+        /* Si se mantiene en la misma columna y se se hace un movimiento que no sea
+        					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal */
+        /* Avanzar en diagonal para capturas */
+        /* Captura hacia la derecha */
+        /* En la posición de destino hay un peon */
+        /* Se puede capturar al paso */
+        /* Si no se puede hacer una captura */
+        /* Captura hacia la izquierda */
+        /* En la posición de destino hay un peon */
+        /* Se puede capturar al paso */
+        /* Si no existe un peón que se pueda capturar */
+        /* Si se avanza una posición y se mueve lateralmente más de una posicion es
+        					   un movimiento ilegal */
+        /* Movimiento ilegal */
+        /* Movimiento horizontal */
+        /* Movimiento vertical */
+        /* Movimiento ilegal */
+        /* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) */
+        /* Movimiento ilegal */
+        /* Movimiento de dos casillas a la derecha */
+        /* Movimiento de una casilla arriba */
+        /* Movimiento de una casilla abajo */
+        /* Movimiento ilegal */
+        /* Movimiento de dos casillas a la izquierda */
+        /* Movimiento de una casilla arriba */
+        /* Movimiento de una casilla abajo */
+        /* Movimiento ilegal */
+        /* Movimiento de dos casillas hacia arriba */
+        /* Movimiento de una casilla a la derecha */
+        /* Movimiento de una casilla a la izquierda */
+        /* Movimiento ilegal */
+        /* Movimiento de dos casillas hacia abajo */
+        /* Movimiento de una casilla a la derecha */
+        /* Movimiento de una casilla a la izquierda */
+        /* Movimiento ilegal */
+        /* Movimiento ilegal */
+        /* Movimiento horizontal */
+        /* Movimiento vertical */
+        /* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) */
+        /* Movimiento ilegal */
+        /* Se mueve el rey en cualquier dirección sólo una casilla */
+        /* Enroque largo */
+        /* Se comprueba la posibilidad de enroque */
+        /* Movimiento ilegal */
+        /* Enroque corto */
+        /* Se comprueba la posibilidad de enroque */
+        /* Movimiento ilegal */
+        /* Movimiento ilegal */
+        /* ****************************************************************************************************************
+           Devuelve TRUE en caso de que no haya obstáculos entre las posiciones de origen y destino de la jugada
+           y FALSE en caso contrario 
+        
+        Se requieren las comprobaciones anteriores de (precondiciones):
+        -Comprobar que las direcciones no exceden los límites del tablero.
+        -Comprobar que las direcciones de origen y destino no son iguales.
+        -Comprobar que la dirección de origen no está vacía.
+        -Comprobar que la dirección de destino no contiene una pieza del mismo color.
+        -Comprobar que la dirección del movimiento es posible.
+        ******************************************************************************************************************/
         if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza != TipoPieza.CABALLO) {
             if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza != TipoPieza.REY) {
                 Actual.x = Posicion1.x;
@@ -1267,7 +1448,50 @@ public class TDATablero {
         int j = 0;
         boolean Encontrado = false;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* Movimiento hacia arriba */
+        /* Movimiento a la derecha */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento a la izquierda */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento vertical */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento hacia abajo */
+        /* Movimiento a la derecha */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento a la izquierda */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento vertical */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento lateral */
+        /* Movimiento a la derecha */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* Movimiento a la izquierda */
+        /* Mientras no se haya llegado a la posición final */
+        /* Comprobación de que no haya obstáculo */
+        /* Se incrementa la posición */
+        /* La jugada puede ser un enroque */
+        /* Enroque a la derecha */
+        /* Comprobación de que no haya obstáculo */
+        /* Si no hay obstáculos entre la torre y el rey */
+        /* Enroque a la izquierda */
+        /* Comprobación de que no haya obstáculo */
+        /* Si no hay obstáculos entre la torre y el rey */
+        /* Si no es un enroque */
+        /* ****************************************************************************************************************
         	Devuelve la posición del rey del color elegido.
         ******************************************************************************************************************/
         i = 1;
@@ -1290,7 +1514,7 @@ public class TDATablero {
         // VAR
         TipoPosicion Posicion = new TipoPosicion(); /* WRT */
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
         	Devuelve TRUE en caso de que el rey elegido esté en jaque y FALSE en caso contrario.
         ******************************************************************************************************************/
         PosicionRey(Tablero, Color, Posicion);
@@ -1304,7 +1528,7 @@ public class TDATablero {
         // VAR
         TipoTablero TableroTemp = new TipoTablero(); /* WRT */
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
         	Devuelve TRUE si tras la jugada de posición 1 a posición 2 el rey está enjaque y FALSE en caso contrario.
         ******************************************************************************************************************/
         CopiarTablero(Tablero, TableroTemp);
@@ -1316,6 +1540,19 @@ public class TDATablero {
     }
 
     public boolean MovimientoLegal(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero, boolean Debug) {
+        /* ****************************************************************************************************************
+           Devuelve TRUE en caso de que el movimiento sea legal y False en caso contrario.
+        
+        Se hacen las siguientes comprobaciones:
+        -Comprobar que las direcciones no exceden los límites del tablero.
+        -Comprobar que las direcciones de origen y destino no son iguales.
+        -Comprobar que la dirección de origen no está vacía.
+        -Comprobar que la dirección de destino no contiene una pieza del mismo color.
+        -Comprobar que la dirección del movimiento es posible.
+        -Comprobar que no existen obstáculos para realizar la jugada.
+        ** La comprobación de que el rey no está amenazado se hace en "ReyEnJaque2"
+        ** La poda por estar el rey en jaque se hace en el procedimiento de generación de jugadas
+        ******************************************************************************************************************/
         if (!Debug) {
             if (JugadaEnTablero(Posicion1, Posicion2, Tablero) && !PosicionesIguales(Posicion1, Posicion2) && !DireccionVacia(Posicion1, Tablero) && !MismoColor(Posicion1, Posicion2, Tablero) && DireccionValida(Posicion1, Posicion2, Tablero) && CaminoDespejado(Posicion1, Posicion2, Tablero))
                 return true;
@@ -1377,6 +1614,23 @@ public class TDATablero {
     }
 
     private int PuntuacionTablero_Auxiliar1(int num, TipoTablero Tablero) {
+        /* ****************************************************************************************************************
+           Función que estima la bondad de una situación del tablero para un Jugador.
+        
+        100 por cada peon,
+        315 por cada caballo, 
+        330 por cada alfil, 
+        500 por cada torre, 
+        940 por cada dama,
+        máximo por el rey,
+        1 punto por cada casilla a la que se puedan mover los alfiles, 
+        1 punto por cada casilla a la que se puedan mover las torres, 
+        Da mayor puntuación el mover los peones centrales (casillas avanzadas * posición(1 lateral a 4 central)), 
+        De 0 hasta 9 gradualmente por la posicion de cada caballo (desde un rincon del tablero hasta el centro), 
+        De 0 a 9 gradualmente por la posicion de la dama (desde un rincon hasta el centro), 
+        -20 por peon doblado, 
+        bonus gradual para la posicion del rey, en la apertura mientras más cerca del centro es más malo y en los finales de partida (poco material) al revés. 
+        ******************************************************************************************************************/
         /* 
         		Devuelve números de forma ascendente hasta la mitad (Ancho) y descendentes a partir de la mitad. P.ej.:
         		1 2 3 4 4 3 2 1 ...
@@ -1403,6 +1657,19 @@ public class TDATablero {
         int valx = 0;
         int valy = 0;
 
+        /*
+        		Devuelve un número que representa lo centrada que está una pieza:
+        
+        		00000000
+        		01111110
+        		01222210
+        		01233210
+        		01233210
+        		01222210
+        		01111110
+        		00000000
+        
+        	*/
         valx = PuntuacionTablero_Auxiliar1(x, Tablero);
         valy = PuntuacionTablero_Auxiliar1(y, Tablero);
         if (valx < valy)
@@ -1635,6 +1902,81 @@ public class TDATablero {
                 }
             }
         }
+        /* Puntuación por posición */
+        /* Puntuación menor por peón doblado */
+        /* Puntuación menor por peón doblado */
+        /* Bonificación por posibilidad de movimiento */
+        /* Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Bonificación por posibilidad de movimiento */
+        /* Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Casilla vacía */
+        /* Puntuación por posición */
+        /* Puntuación mayor por peón doblado */
+        /* Puntuación mayor por peón doblado */
+        /* Penalización por posibilidad de movimiento */
+        /* Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Bonificación por posibilidad de movimiento */
+        /* Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Probar la siguiente posición */
+        /* ********/
         /* Casilla vacía */
         if (!reyblanco) {
             if (Jugador == TipoColor.NEGRO)
@@ -1652,11 +1994,11 @@ public class TDATablero {
         return Puntuacion;
     }
 
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★    Funciones para representación en modo texto      ****************************/
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★*/
+    /* ************************************************************************************************************/
+    /* ************************************************************************************************************/
+    /* ************************************************************************************************************/
+    /* ***************************    Funciones para representación en modo texto      ****************************/
+    /* ************************************************************************************************************/
     public void ImprimirTablero(TipoTablero Tablero, boolean Debug) {
         // CONST
         final boolean Numeracion = true;
@@ -1666,6 +2008,11 @@ public class TDATablero {
         int j = 0;
         char Temp = (char) 0;
 
+        /* ****************************************************************************************************************
+           Imprime un tablero en la salida estandar.
+           Si Debug es TRUE, muestra información adicional:
+        	alto, ancho, última jugada y piezas (reyes y torres) movidas.
+        ******************************************************************************************************************/
         /* Leer casillas */
         /* Si numeración es TRUE, se muestran las coordenadas */
         /* Índices para la matriz */
@@ -1789,7 +2136,7 @@ public class TDATablero {
         int numero = 0;
         int total = 0;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
            cada uno corresponde a una coordenada, dos de origen y dos de destino.
            No se hacen comprobaciones.
@@ -1811,7 +2158,7 @@ public class TDATablero {
         // VAR
         Runtime.Ref<String> Buffer = new Runtime.Ref<>("");
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Lee un movimiento de la entrada estandar, para hacer esto se leen cuatro números,
            cada uno corresponde a una coordenada, dos de origen y dos de destino.
            No se hacen comprobaciones.
@@ -1830,7 +2177,7 @@ public class TDATablero {
         // VAR
         Runtime.Ref<Character> Letra = new Runtime.Ref<>((char) 0);
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Muestra el menú de selección de pieza
         ******************************************************************************************************************/
         inOut.WriteString("Promoción del peón");

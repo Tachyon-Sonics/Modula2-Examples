@@ -142,7 +142,26 @@ public class IA {
         // VAR
         TDATablero.TipoDatos Nodo = null;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /*
+        Copyright 2003 Javier Callón Álvarez
+        
+        This file is part of Modula2Chess.
+        
+        Modula2Chess is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 2 of the License, or
+        any later version.
+        
+        Modula2Chess is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+        
+        You should have received a copy of the GNU General Public License
+        along with Modula2Chess; if not, write to the Free Software
+        Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+        */
+        /* ****************************************************************************************************************
            Crea un nodo a partir de la posición inicial.
         ******************************************************************************************************************/
         Nodo = new TDATablero.TipoDatos();
@@ -153,14 +172,14 @@ public class IA {
     }
 
     private void EliminarNodo(TDATablero.TipoDatos Nodo) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Elimina un nodo.
         ******************************************************************************************************************/
         Nodo = null;
     }
 
     private void CrearHijo(TDATablero.TipoDatos PtrTablero1, /* VAR */ Runtime.IRef<TDATablero.TipoDatos> PtrTablero2) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Crea un puntero a una copia del tablero al que apunta PtrTablero1 y hace apuntar el campo Predecesor de la copia
            al tablero original.
            Los dos tableros deben tener las mismas dimensiones. (Precondición)
@@ -179,6 +198,10 @@ public class IA {
         Runtime.Ref<TDATablero.TipoDatos> NodoTemp = new Runtime.Ref<>(null);
         Runtime.Ref<Integer> NumeroJugadas = new Runtime.Ref<>(0);
 
+        /* ****************************************************************************************************************
+        	Devuelve TRUE en caso de que el jugador del color especificado pueda hacer algún movimiento y FALSE en caso 
+        	contrario.
+        ******************************************************************************************************************/
         NumeroJugadas.set(0);
         tDATablero.PosicionRey(Tablero, Color, Posicion);
         Nodo = CrearNodo(Tablero);
@@ -206,7 +229,7 @@ public class IA {
         TDATablero.TipoPosicion Destino = new TDATablero.TipoPosicion();
         Runtime.Ref<TDATablero.TipoDatos> PtrTableroTemp = new Runtime.Ref<>(null);
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
            especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
         ******************************************************************************************************************/
@@ -804,13 +827,233 @@ public class IA {
         }
     }
 
-    /*★★★★★★★★*/
+    /* ********/
     private void Expandir(TDATablero.TipoDatos PtrTablero, /* VAR+WRT */ TDALista.TipoLista Lista, TipoColor Color, /* VAR+WRT */ Runtime.IRef<Integer> TotalJugadas) {
         // VAR
         int i = 0;
         int j = 0;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* Para cada movimiento posible */
+        /* No se añaden las compleciones en las que el rey está amenazado */
+        /* Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Para cada movimiento posible */
+        /* Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Para cada movimiento posible */
+        /* Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Para cada movimiento posible */
+        /* Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Para cada movimiento posible */
+        /* Arriba-Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Arriba-Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Abajo-Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Abajo-Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Izquierda-Izquierda-Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Izquierda-Izquierda-Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Derecha-Derecha-Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Derecha-Derecha-Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* ********/
+        /* Para cada movimiento posible */
+        /* Arriba */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Promoción del peón blanco */
+        /* Movimiento normal */
+        /* Promoción del peón negro */
+        /* Movimiento normal */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Abajo */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Promoción del peón blanco */
+        /* Movimiento normal */
+        /* Promoción del peón negro */
+        /* Movimiento normal */
+        /* Añadir la jugada a la lista */
+        /* Probar la siguiente posición */
+        /* ********/
+        /* Arriba-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Promoción del peón blanco */
+        /* Movimiento normal */
+        /* Promoción del peón negro */
+        /* Movimiento normal */
+        /* ********/
+        /* Arriba-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Promoción del peón blanco */
+        /* Movimiento normal */
+        /* Promoción del peón negro */
+        /* Movimiento normal */
+        /* ********/
+        /* Abajo-Izquierda */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Promoción del peón blanco */
+        /* Movimiento normal */
+        /* Promoción del peón negro */
+        /* Movimiento normal */
+        /* ********/
+        /* Abajo-Derecha */
+        /* Mientras la jugada no sea ilegal */
+        /* Se hace una copia del tablero tras el movimiento */
+        /* Promoción del peón blanco */
+        /* Movimiento normal */
+        /* Promoción del peón negro */
+        /* Movimiento normal */
+        /* ****************************************************************************************************************
            Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
            especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
         ******************************************************************************************************************/
@@ -833,7 +1076,7 @@ public class IA {
     }
 
     private void ImprimirJugadas(TDATablero.TipoDatos PtrTablero, boolean Debug) {
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* ****************************************************************************************************************
            Se imprimen en la salida estandar las jugadas hechas desde el nodo raiz del árbol de jugadas, hasta la situación 
            final.
         ******************************************************************************************************************/
@@ -846,7 +1089,7 @@ public class IA {
         }
     }
 
-    /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    /* ****************************************************************************************************************
     	Devuelve el nodo meta al aplicar una poda alfa-beta sobre minimax.
     ******************************************************************************************************************/
     private TDATablero.TipoDatos alfa_beta_max(TDATablero.TipoDatos nodo1, TDATablero.TipoDatos nodo2) {
@@ -941,7 +1184,25 @@ public class IA {
         Runtime.Ref<TDATablero.TipoDatos> n = new Runtime.Ref<>(null);
         int mejor = 0;
 
-        /*★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        /* Se evalua la posición */
+        /* Para un nodo max, se actualiza el valor de alfa */
+        /* Para un nodo min, se actualiza el valor de beta */
+        /* Juega MAX */
+        /* WriteString("Juega max"); WriteLn; */
+        /* Se generan las jugadas posibles para el jugador MAX a partir de esa posición */
+        /* J es terminal */
+        /* Se toma el primer hijo Jk */
+        /* Se devuelve el hijo que tenga un mayor valor de alfa */
+        /* Si en algún momento alfa es mayor o igual que beta, se poda el árbol */
+        /* Si no hay más hijos, devolver el nodo (alfa en Evaluacion) */
+        /* Juega MIN */
+        /* WriteString("Juega min"); WriteLn; */
+        /* Se generan las jugadas posibles para el jugador MAX a partir de esa posición */
+        /* J es terminal */
+        /* Se toma el primer hijo Jk */
+        /* Se devuelve el hijo que tenga un mayor valor de alfa */
+        /* Si en algún momento alfa es mayor o igual que beta, se poda el árbol */
+        /* ****************************************************************************************************************
         	Devuelve la mejor jugada por el método minimax (Etiquetado MMvalor)
         ******************************************************************************************************************/
         tDALista.InicializarLista(Compleciones);
@@ -1001,6 +1262,20 @@ public class IA {
         TDATablero.TipoDatos NodoTemp = null;
         int index = 0;
 
+        /* Se evalua la posición */
+        /* Para un nodo max se devuelve la función de evaluación */
+        /* Para un nodo min se devuelve el valor negativo de la función de evaluación */
+        /* Juega MAX */
+        /* J es terminal */
+        /* Juega MIN */
+        /* J es terminal */
+        /* ****************************************************************************************************************
+        	El jugador Max hace un movimiento en el Tablero.
+        	Movimiento:
+        		1: minimax
+        		2: alfa-beta
+        		3: alfa-beta y minimax
+        ******************************************************************************************************************/
         if (Jugador == TipoColor.BLANCO) {
             JugadorMin = TipoColor.NEGRO;
             JugadorMax = TipoColor.BLANCO;
@@ -1027,6 +1302,8 @@ public class IA {
             inOut.WriteString(" décimas de segundo.");
             inOut.WriteLn();
         }
+        /* Método de minimax */
+        /* Se muestra el número de jugadas generadas */
         if (Metodo != 1) {
             JugadasGeneradas = 0;
             NodoTemp = CrearNodo(Tablero);
@@ -1046,6 +1323,8 @@ public class IA {
             inOut.WriteString(" décimas de segundo.");
             inOut.WriteLn();
         }
+        /* Método de poda alfa-beta */
+        /* Se muestra el número de jugadas generadas */
         while (Nodo.Nivel > 1) {
             Nodo = Nodo.Predecesor;
         }
