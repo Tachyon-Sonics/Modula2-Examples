@@ -237,10 +237,15 @@ public class IA {
         Origen.y = j;
         switch (PtrTablero.Tablero.Casilla[i - 1][j - 1].Pieza) {
             case REY -> {
+                /* Para cada movimiento posible */
+                /* No se añaden las compleciones en las que el rey está amenazado */
+                /* Arriba */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -249,10 +254,14 @@ public class IA {
                         TotalJugadas.set(TotalJugadas.get() + 1);
                     }
                 }
+                /* ********/
+                /* Abajo */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -261,10 +270,14 @@ public class IA {
                         TotalJugadas.set(TotalJugadas.get() + 1);
                     }
                 }
+                /* ********/
+                /* Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -274,10 +287,15 @@ public class IA {
                     }
                     Destino.x = Destino.x - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -287,10 +305,15 @@ public class IA {
                     }
                     Destino.x = Destino.x + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Arriba-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -299,10 +322,14 @@ public class IA {
                         TotalJugadas.set(TotalJugadas.get() + 1);
                     }
                 }
+                /* ********/
+                /* Arriba-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -311,10 +338,14 @@ public class IA {
                         TotalJugadas.set(TotalJugadas.get() + 1);
                     }
                 }
+                /* ********/
+                /* Abajo-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -323,10 +354,14 @@ public class IA {
                         TotalJugadas.set(TotalJugadas.get() + 1);
                     }
                 }
+                /* ********/
+                /* Abajo-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (tDATablero.PiezaAmenazada(Destino, PtrTableroTemp.get().Tablero)) {
                         EliminarNodo(PtrTableroTemp.get());
@@ -337,237 +372,375 @@ public class IA {
                 }
             }
             case DAMA -> {
+                /* ********/
+                /* Para cada movimiento posible */
+                /* Arriba */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.y = Destino.y - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Arriba-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x - 1;
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Arriba-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x + 1;
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x - 1;
                     Destino.y = Destino.y - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x + 1;
                     Destino.y = Destino.y - 1;
                 }
             }
             case TORRE -> {
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Para cada movimiento posible */
+                /* Arriba */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.y = Destino.y - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x + 1;
                 }
             }
             case ALFIL -> {
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Para cada movimiento posible */
+                /* Arriba-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x - 1;
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Arriba-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x + 1;
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x - 1;
                     Destino.y = Destino.y - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
+                    /* Añadir la jugada a la lista */
                     Destino.x = Destino.x + 1;
                     Destino.y = Destino.y - 1;
                 }
             }
             case CABALLO -> {
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Para cada movimiento posible */
+                /* Arriba-Arriba-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y + 2;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Arriba-Arriba-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y + 2;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Abajo-Abajo-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y - 2;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Abajo-Abajo-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y - 2;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Izquierda-Izquierda-Arriba */
                 Destino.x = Origen.x - 2;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Izquierda-Izquierda-Abajo */
                 Destino.x = Origen.x - 2;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Derecha-Derecha-Arriba */
                 Destino.x = Origen.x + 2;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
+                /* ********/
+                /* Derecha-Derecha-Abajo */
                 Destino.x = Origen.x + 2;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                     TotalJugadas.set(TotalJugadas.get() + 1);
                 }
             }
             case PEON -> {
+                /* ********/
+                /* Para cada movimiento posible */
+                /* Arriba */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y + 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Color == TipoColor.BLANCO) {
                         if (Destino.y == PtrTableroTemp.get().Tablero.Alto) {
+                            /* Promoción del peón blanco */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -581,11 +754,13 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     } else {
                         if (Destino.y == 1) {
+                            /* Promoción del peón negro */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -599,19 +774,27 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     }
+                    /* Añadir la jugada a la lista */
                     Destino.y = Destino.y + 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Abajo */
                 Destino.x = Origen.x;
                 Destino.y = Origen.y - 1;
                 while (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Color == TipoColor.BLANCO) {
                         if (Destino.y == PtrTableroTemp.get().Tablero.Alto) {
+                            /* Promoción del peón blanco */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -625,11 +808,13 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     } else {
                         if (Destino.y == 1) {
+                            /* Promoción del peón negro */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -643,19 +828,27 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     }
+                    /* Añadir la jugada a la lista */
                     Destino.y = Destino.y - 1;
                 }
+                /* Probar la siguiente posición */
+                /* ********/
+                /* Arriba-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Color == TipoColor.BLANCO) {
                         if (Destino.y == PtrTableroTemp.get().Tablero.Alto) {
+                            /* Promoción del peón blanco */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -669,11 +862,13 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     } else {
                         if (Destino.y == 1) {
+                            /* Promoción del peón negro */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -687,18 +882,24 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     }
                 }
+                /* ********/
+                /* Arriba-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y + 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Color == TipoColor.BLANCO) {
                         if (Destino.y == PtrTableroTemp.get().Tablero.Alto) {
+                            /* Promoción del peón blanco */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -712,11 +913,13 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     } else {
                         if (Destino.y == 1) {
+                            /* Promoción del peón negro */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -730,18 +933,24 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     }
                 }
+                /* ********/
+                /* Abajo-Izquierda */
                 Destino.x = Origen.x - 1;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Color == TipoColor.BLANCO) {
                         if (Destino.y == PtrTableroTemp.get().Tablero.Alto) {
+                            /* Promoción del peón blanco */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -755,11 +964,13 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     } else {
                         if (Destino.y == 1) {
+                            /* Promoción del peón negro */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -773,18 +984,24 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     }
                 }
+                /* ********/
+                /* Abajo-Derecha */
                 Destino.x = Origen.x + 1;
                 Destino.y = Origen.y - 1;
                 if (tDATablero.MovimientoLegal(Origen, Destino, PtrTablero.Tablero, false)) {
+                    /* Mientras la jugada no sea ilegal */
                     CrearHijo(PtrTablero, PtrTableroTemp);
+                    /* Se hace una copia del tablero tras el movimiento */
                     tDATablero.MoverPieza(Origen, Destino, PtrTableroTemp.get().Tablero, false, false);
                     if (PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Color == TipoColor.BLANCO) {
                         if (Destino.y == PtrTableroTemp.get().Tablero.Alto) {
+                            /* Promoción del peón blanco */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -798,11 +1015,13 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
                     } else {
                         if (Destino.y == 1) {
+                            /* Promoción del peón negro */
                             PtrTableroTemp.get().Tablero.Casilla[Destino.x - 1][Destino.y - 1].Pieza = TipoPieza.DAMA;
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
@@ -816,6 +1035,7 @@ public class IA {
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         } else {
+                            /* Movimiento normal */
                             tDALista.AnadirFIFO(PtrTableroTemp.get(), Lista);
                             TotalJugadas.set(TotalJugadas.get() + 1);
                         }
@@ -833,226 +1053,6 @@ public class IA {
         int i = 0;
         int j = 0;
 
-        /* Para cada movimiento posible */
-        /* No se añaden las compleciones en las que el rey está amenazado */
-        /* Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Para cada movimiento posible */
-        /* Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Para cada movimiento posible */
-        /* Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Para cada movimiento posible */
-        /* Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Para cada movimiento posible */
-        /* Arriba-Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Arriba-Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Abajo-Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Abajo-Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Izquierda-Izquierda-Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Izquierda-Izquierda-Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Derecha-Derecha-Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Derecha-Derecha-Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* ********/
-        /* Para cada movimiento posible */
-        /* Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Promoción del peón blanco */
-        /* Movimiento normal */
-        /* Promoción del peón negro */
-        /* Movimiento normal */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Promoción del peón blanco */
-        /* Movimiento normal */
-        /* Promoción del peón negro */
-        /* Movimiento normal */
-        /* Añadir la jugada a la lista */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Promoción del peón blanco */
-        /* Movimiento normal */
-        /* Promoción del peón negro */
-        /* Movimiento normal */
-        /* ********/
-        /* Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Promoción del peón blanco */
-        /* Movimiento normal */
-        /* Promoción del peón negro */
-        /* Movimiento normal */
-        /* ********/
-        /* Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Promoción del peón blanco */
-        /* Movimiento normal */
-        /* Promoción del peón negro */
-        /* Movimiento normal */
-        /* ********/
-        /* Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Se hace una copia del tablero tras el movimiento */
-        /* Promoción del peón blanco */
-        /* Movimiento normal */
-        /* Promoción del peón negro */
-        /* Movimiento normal */
         /* ****************************************************************************************************************
            Se expande el nodo, generando todas las compleciones para la situación actual. Se hacen las jugadas del jugador 
            especificado por el parámetro Color. La lista de jugadas se introduce en la lista pasada como parámetro.
@@ -1130,53 +1130,71 @@ public class IA {
         J.Beta = beta;
         /* Si J es terminal, devolver J */
         if ((NivelNodo(J) > MaxNivel) || tDATablero.EsMate(J.Tablero)) {
+            /* Se evalua la posición */
             J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
             if ((NivelNodo(J) % 2) == 0)
+                /* Para un nodo max, se actualiza el valor de alfa */
                 J.Alfa = J.Evaluacion;
             else
+                /* Para un nodo min, se actualiza el valor de beta */
                 J.Beta = J.Evaluacion;
             return J;
         } else {
             tDALista.InicializarLista(Compleciones);
             if ((NivelNodo(J) % 2) == 0) {
+                /* Juega MAX */
+                /* WriteString("Juega max"); WriteLn; */
                 Expandir(J, Compleciones, JugadorMax, new Runtime.FieldRef<>(this::getJugadasGeneradas, this::setJugadasGeneradas));
+                /* Se generan las jugadas posibles para el jugador MAX a partir de esa posición */
                 if (tDALista.Vacia(Compleciones)) {
+                    /* J es terminal */
                     J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
                     return J;
                 } else {
                     do {
+                        /* Se toma el primer hijo Jk */
                         tDALista.Primero(Compleciones, Jk);
                         tDALista.Resto(Compleciones);
+                        /* Se devuelve el hijo que tenga un mayor valor de alfa */
                         J = alfa_beta_max(J, alfa_beta(Jk.get(), J.Alfa, J.Beta));
+                        /* Si en algún momento alfa es mayor o igual que beta, se poda el árbol */
                         if (J.Alfa >= J.Beta) {
                             J.Alfa = J.Beta;
                             return J;
                         }
                     } while (!tDALista.Vacia(Compleciones));
+                    /* Si no hay más hijos, devolver el nodo (alfa en Evaluacion) */
                     return J;
                 }
             } else {
+                /* Juega MIN */
+                /* WriteString("Juega min"); WriteLn; */
                 Expandir(J, Compleciones, JugadorMin, new Runtime.FieldRef<>(this::getJugadasGeneradas, this::setJugadasGeneradas));
+                /* Se generan las jugadas posibles para el jugador MAX a partir de esa posición */
                 if (tDALista.Vacia(Compleciones)) {
+                    /* J es terminal */
                     J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
                     return J;
                 } else {
                     do {
+                        /* Se toma el primer hijo Jk */
                         tDALista.Primero(Compleciones, Jk);
                         tDALista.Resto(Compleciones);
+                        /* Se devuelve el hijo que tenga un mayor valor de alfa */
                         J = alfa_beta_min(J, alfa_beta(Jk.get(), J.Alfa, J.Beta));
+                        /* Si en algún momento alfa es mayor o igual que beta, se poda el árbol */
                         if (J.Alfa >= J.Beta) {
                             J.Beta = J.Alfa;
                             return J;
                         }
                     } while (!tDALista.Vacia(Compleciones));
+                    /* Si no hay más hijos, devolver el nodo (beta en Evaluacion) */
                     return J;
                 }
             }
         }
     }
 
-    /* Si no hay más hijos, devolver el nodo (beta en Evaluacion) */
     private TDATablero.TipoDatos minimax(TDATablero.TipoDatos J) {
         // VAR
         TDALista.TipoLista Compleciones = new TDALista.TipoLista(); /* WRT */
@@ -1184,39 +1202,26 @@ public class IA {
         Runtime.Ref<TDATablero.TipoDatos> n = new Runtime.Ref<>(null);
         int mejor = 0;
 
-        /* Se evalua la posición */
-        /* Para un nodo max, se actualiza el valor de alfa */
-        /* Para un nodo min, se actualiza el valor de beta */
-        /* Juega MAX */
-        /* WriteString("Juega max"); WriteLn; */
-        /* Se generan las jugadas posibles para el jugador MAX a partir de esa posición */
-        /* J es terminal */
-        /* Se toma el primer hijo Jk */
-        /* Se devuelve el hijo que tenga un mayor valor de alfa */
-        /* Si en algún momento alfa es mayor o igual que beta, se poda el árbol */
-        /* Si no hay más hijos, devolver el nodo (alfa en Evaluacion) */
-        /* Juega MIN */
-        /* WriteString("Juega min"); WriteLn; */
-        /* Se generan las jugadas posibles para el jugador MAX a partir de esa posición */
-        /* J es terminal */
-        /* Se toma el primer hijo Jk */
-        /* Se devuelve el hijo que tenga un mayor valor de alfa */
-        /* Si en algún momento alfa es mayor o igual que beta, se poda el árbol */
         /* ****************************************************************************************************************
         	Devuelve la mejor jugada por el método minimax (Etiquetado MMvalor)
         ******************************************************************************************************************/
         tDALista.InicializarLista(Compleciones);
         /* Si J es terminal, devolver J */
         if ((NivelNodo(J) > MaxNivel) || tDATablero.EsMate(J.Tablero)) {
+            /* Se evalua la posición */
             if ((NivelNodo(J) % 2) == 0)
+                /* Para un nodo max se devuelve la función de evaluación */
                 J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
             else
+                /* Para un nodo min se devuelve el valor negativo de la función de evaluación */
                 J.Evaluacion = -tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
             return J;
         } else {
             if ((NivelNodo(J) % 2) == 0) {
+                /* Juega MAX */
                 Expandir(J, Compleciones, JugadorMax, new Runtime.FieldRef<>(this::getJugadasGeneradas, this::setJugadasGeneradas));
                 if (tDALista.Vacia(Compleciones)) {
+                    /* J es terminal */
                     J.Evaluacion = tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
                     return J;
                 } else {
@@ -1234,8 +1239,10 @@ public class IA {
                     return J;
                 }
             } else {
+                /* Juega MIN */
                 Expandir(J, Compleciones, JugadorMin, new Runtime.FieldRef<>(this::getJugadasGeneradas, this::setJugadasGeneradas));
                 if (tDALista.Vacia(Compleciones)) {
+                    /* J es terminal */
                     J.Evaluacion = -tDATablero.PuntuacionTablero(J.Tablero, JugadorMax);
                     return J;
                 } else {
@@ -1262,13 +1269,6 @@ public class IA {
         TDATablero.TipoDatos NodoTemp = null;
         int index = 0;
 
-        /* Se evalua la posición */
-        /* Para un nodo max se devuelve la función de evaluación */
-        /* Para un nodo min se devuelve el valor negativo de la función de evaluación */
-        /* Juega MAX */
-        /* J es terminal */
-        /* Juega MIN */
-        /* J es terminal */
         /* ****************************************************************************************************************
         	El jugador Max hace un movimiento en el Tablero.
         	Movimiento:
@@ -1284,6 +1284,7 @@ public class IA {
             JugadorMax = TipoColor.NEGRO;
         }
         if (Metodo != 2) {
+            /* Método de minimax */
             JugadasGeneradas = 0;
             NodoTemp = CrearNodo(Tablero);
             inOut.WriteString("*** Se va a ejecutar poda alfa-beta ***");
@@ -1293,6 +1294,7 @@ public class IA {
             clock.ResetClock();
             Nodo = alfa_beta(NodoTemp, -100000, 100000);
             Tiempo = (clock.UserTime() / 6);
+            /* Se muestra el número de jugadas generadas */
             inOut.WriteString("Se han generado ");
             inOut.WriteInt(JugadasGeneradas, 1);
             inOut.WriteString(" jugadas generadas por el método de poda alfa-beta.");
@@ -1302,9 +1304,8 @@ public class IA {
             inOut.WriteString(" décimas de segundo.");
             inOut.WriteLn();
         }
-        /* Método de minimax */
-        /* Se muestra el número de jugadas generadas */
         if (Metodo != 1) {
+            /* Método de poda alfa-beta */
             JugadasGeneradas = 0;
             NodoTemp = CrearNodo(Tablero);
             inOut.WriteString("*** Se va a ejecutar MINIMAX ***");
@@ -1314,6 +1315,7 @@ public class IA {
             clock.ResetClock();
             Nodo = minimax(NodoTemp);
             Tiempo = (clock.UserTime() / 6);
+            /* Se muestra el número de jugadas generadas */
             inOut.WriteString("Se han generado ");
             inOut.WriteInt(JugadasGeneradas, 1);
             inOut.WriteString(" jugadas generadas por el método de MINIMAX.");
@@ -1323,8 +1325,6 @@ public class IA {
             inOut.WriteString(" décimas de segundo.");
             inOut.WriteLn();
         }
-        /* Método de poda alfa-beta */
-        /* Se muestra el número de jugadas generadas */
         while (Nodo.Nivel > 1) {
             Nodo = Nodo.Predecesor;
         }

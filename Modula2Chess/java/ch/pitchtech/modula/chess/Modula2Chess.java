@@ -225,14 +225,17 @@ public class Modula2Chess {
         }
         if (EnJuego) {
             while (EnJuego) {
+                /* Comprobar jaque mate */
                 tDATablero.ImprimirTablero(Tablero, DEBUG);
                 switch (tDATablero.JaqueMate(Tablero, TipoColor.BLANCO)) {
                     case 1 -> {
+                        /* Si el adversario ha dado jaque mate en la anterior jugada... */
                         inOut.WriteString("Jaque Mate!!! Las negras ganan!");
                         inOut.WriteLn();
                         EnJuego = false;
                     }
                     case 2 -> {
+                        /* Rey negro ahogado */
                         inOut.WriteString("Rey negro ahogado!");
                         inOut.WriteLn();
                         EnJuego = false;
@@ -240,21 +243,27 @@ public class Modula2Chess {
                     default -> {
                     }
                 }
+                /* La partida continúa*/
                 if (EnJuego) {
+                    /* Lee una jugada */
                     inOut.WriteString("Siguiente jugada?");
                     inOut.WriteLn();
                     tDATablero.LeerMovimiento(Movimiento);
                     if (tDATablero.MovimientoLegal(Movimiento.Origen, Movimiento.Destino, Tablero, DEBUG) && (Tablero.Casilla[Movimiento.Origen.x - 1][Movimiento.Origen.y - 1].Color == TipoColor.BLANCO) && !tDATablero.ReyEnJaque2(Movimiento.Origen, Movimiento.Destino, Tablero, Tablero.Casilla[Movimiento.Origen.x - 1][Movimiento.Origen.y - 1].Color)) {
                         tDATablero.MoverPieza(Movimiento.Origen, Movimiento.Destino, Tablero, true, false);
+                        /* Si es legal muestra una jugada */
                         tDATablero.ImprimirTablero(Tablero, DEBUG);
                         inOut.WriteLn();
+                        /* Si el jugador ha dado jaque mate */
                         switch (tDATablero.JaqueMate(Tablero, TipoColor.NEGRO)) {
                             case 1 -> {
+                                /* Las blancas ganan*/
                                 inOut.WriteString("Jaque Mate!!! Las blancas ganan!");
                                 inOut.WriteLn();
                                 EnJuego = false;
                             }
                             case 2 -> {
+                                /*	Rey negro ahogado */
                                 inOut.WriteString("Rey negro ahogado!");
                                 inOut.WriteLn();
                                 EnJuego = false;
@@ -262,12 +271,15 @@ public class Modula2Chess {
                             default -> {
                             }
                         }
+                        /* La partida continúa */
                         if (EnJuego) {
+                            /* Juega la máquina */
                             inOut.WriteString("Calculando jugada. Espere, por favor...");
                             inOut.WriteLn();
                             iA.Jugada(Tablero, TipoColor.NEGRO, metodo);
                         }
                     } else {
+                        /* Imprimir mensaje de jugada ilegal */
                         inOut.WriteString("Movimiento ilegal");
                         inOut.WriteLn();
                     }

@@ -567,9 +567,9 @@ public class TDATablero {
                     }
                 }
             }
+            /* Lee el salto de linea */
             textIO.GetChar(F.get(), Temp);
         }
-        /* Lee el salto de linea */
         /* Lee el salto de linea */
         textIO.GetChar(F.get(), Temp);
         /* Leer coordenadas del último movimiento */
@@ -661,106 +661,106 @@ public class TDATablero {
             if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO) {
                 Tablero.ReyBlancoMovido = true;
                 if ((Posicion1.x + 2) == Posicion2.x) {
+                    /* Enroque a la derecha */
                     OrigenTorre.x = Tablero.Ancho;
                     OrigenTorre.y = 1;
                     DestinoTorre.x = Posicion2.x - 1;
                     DestinoTorre.y = 1;
+                    /* Mover Torre */
+                    /* Copiar la casilla de origen a la casilla de destino */
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Pieza = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza;
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Color = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color;
+                    /* Vaciar la casilla de origen */
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza = TipoPieza.VACIA;
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color = TipoColor.BLANCO;
+                    /* Torre Movida */
                     Tablero.TorreDBlancaMovida = true;
                 } else if (((Posicion1.x - 2) == Posicion2.x)) {
+                    /* Enroque a la izquierda */
                     OrigenTorre.x = 1;
                     OrigenTorre.y = 1;
                     DestinoTorre.x = Posicion2.x + 1;
                     DestinoTorre.y = 1;
+                    /* Mover Torre */
+                    /* Copiar la casilla de origen a la casilla de destino */
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Pieza = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza;
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Color = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color;
+                    /* Vaciar la casilla de origen */
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza = TipoPieza.VACIA;
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color = TipoColor.BLANCO;
+                    /* Torre Movida */
                     Tablero.TorreIBlancaMovida = true;
                 }
             } else {
                 Tablero.ReyNegroMovido = true;
                 if ((Posicion1.x + 2) == Posicion2.x) {
+                    /* Enroque a la derecha */
                     OrigenTorre.x = Tablero.Ancho;
                     OrigenTorre.y = Tablero.Alto;
                     DestinoTorre.x = Posicion2.x - 1;
                     DestinoTorre.y = Tablero.Alto;
+                    /* Mover Torre */
+                    /* Copiar la casilla de origen a la casilla de destino */
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Pieza = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza;
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Color = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color;
+                    /* Vaciar la casilla de origen */
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza = TipoPieza.VACIA;
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color = TipoColor.NEGRO;
+                    /* Torre Movida */
                     Tablero.TorreDNegraMovida = true;
                 } else if (((Posicion1.x - 2) == Posicion2.x)) {
+                    /* Enroque a la izquierda */
                     OrigenTorre.x = 1;
                     OrigenTorre.y = Tablero.Alto;
                     DestinoTorre.x = Posicion2.x + 1;
                     DestinoTorre.y = Tablero.Alto;
+                    /* Mover Torre */
+                    /* Copiar la casilla de origen a la casilla de destino */
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Pieza = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza;
                     Tablero.Casilla[DestinoTorre.x - 1][DestinoTorre.y - 1].Color = Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color;
+                    /* Vaciar la casilla de origen */
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Pieza = TipoPieza.VACIA;
                     Tablero.Casilla[OrigenTorre.x - 1][OrigenTorre.y - 1].Color = TipoColor.NEGRO;
+                    /* Torre Movida */
                     Tablero.TorreINegraMovida = true;
                 }
             }
         } else if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza == TipoPieza.TORRE) {
             if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO) {
                 if ((Posicion1.x == 1) && (Posicion1.y == 1))
+                    /* Torre blanca izquierda */
                     Tablero.TorreIBlancaMovida = true;
                 else if ((Posicion1.x == Tablero.Ancho) && (Posicion1.y == 1))
+                    /* Torre blanca derecha */
                     Tablero.TorreDBlancaMovida = true;
             } else {
                 if ((Posicion1.x == 1) && (Posicion1.y == Tablero.Alto))
+                    /* Torre negra izquierda */
                     Tablero.TorreINegraMovida = true;
                 else if ((Posicion1.x == Tablero.Ancho) && (Posicion1.y == Tablero.Alto))
+                    /* Torre negra derecha */
                     Tablero.TorreDNegraMovida = true;
             }
         } else if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza == TipoPieza.PEON) {
             if ((Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza == TipoPieza.VACIA) && (Posicion1.x != Posicion2.x)) {
+                /* El peón está comiendo al paso */
                 Tablero.Casilla[Posicion2.x - 1][Posicion1.y - 1].Pieza = TipoPieza.VACIA;
                 Tablero.Casilla[Posicion2.x - 1][Posicion1.y - 1].Color = TipoColor.BLANCO;
             }
             if (((Posicion2.y == Tablero.Alto) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO)) || ((Posicion2.y == 1) && (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.NEGRO)))
+                /* Promoción del peón */
                 PromocionPeon = true;
         }
-        /* Enroque a la derecha */
-        /* Mover Torre */
-        /* Copiar la casilla de origen a la casilla de destino */
-        /* Vaciar la casilla de origen */
-        /* Torre Movida */
-        /* Enroque a la izquierda */
-        /* Mover Torre */
-        /* Copiar la casilla de origen a la casilla de destino */
-        /* Vaciar la casilla de origen */
-        /* Torre Movida */
-        /* Enroque a la derecha */
-        /* Mover Torre */
-        /* Copiar la casilla de origen a la casilla de destino */
-        /* Vaciar la casilla de origen */
-        /* Torre Movida */
-        /* Enroque a la izquierda */
-        /* Mover Torre */
-        /* Copiar la casilla de origen a la casilla de destino */
-        /* Vaciar la casilla de origen */
-        /* Torre Movida */
-        /* Torre blanca izquierda */
-        /* Torre blanca derecha */
-        /* Torre negra izquierda */
-        /* Torre negra derecha */
-        /* El peón está comiendo al paso */
-        /* Promoción del peón */
         /* Copiar la casilla de origen a la casilla de destino */
         if (PromocionPeon) {
             if (Humano)
                 ElegirPieza(new Runtime.FieldExprRef<>(Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1], TipoCasilla::getPieza, TipoCasilla::setPieza));
+            /* Juega la máquina */
             Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Color = Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color;
         } else {
             Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza = Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza;
             Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Color = Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color;
         }
-        /* Juega la máquina */
         /* Vaciar la casilla de origen */
         Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza = TipoPieza.VACIA;
         Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color = TipoColor.BLANCO;
@@ -784,154 +784,154 @@ public class TDATablero {
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.x = Actual.x - 1;
         } while (!((Actual.x <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento arriba a la izquierda */
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.x = Actual.x - 1;
             Actual.y = Actual.y + 1;
         } while (!((Actual.x <= 1) || (Actual.y >= Tablero.Alto) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento arriba */
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.y = Actual.y + 1;
         } while (!((Actual.y >= Tablero.Alto) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento arriba a la derecha */
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.x = Actual.x + 1;
             Actual.y = Actual.y + 1;
         } while (!((Actual.x >= Tablero.Ancho) || (Actual.y >= Tablero.Alto) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento a la derecha */
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.x = Actual.x + 1;
         } while (!((Actual.x >= Tablero.Ancho) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento abajo a la derecha */
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.x = Actual.x + 1;
             Actual.y = Actual.y - 1;
         } while (!((Actual.x >= Tablero.Ancho) || (Actual.y <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento abajo*/
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.y = Actual.y - 1;
         } while (!((Actual.y <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimiento abajo a la derecha */
         /* Se inicializa la posición a comprobar */
         Actual.x = Posicion.x;
         Actual.y = Posicion.y;
         do {
+            /* Se mueve una posición */
             Actual.x = Actual.x - 1;
             Actual.y = Actual.y - 1;
         } while (!((Actual.x <= 1) || (Actual.y <= 1) || (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)));
-        /* Se mueve una posición */
         if (MovimientoLegal(Actual, Posicion, Tablero, false) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA))
+            /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
             return true;
-        /* Si la última posición comprobada tiene una pieza y esta pieza puede acceder a la posición de origen */
         /* Movimientos de caballo */
         if ((Posicion.y + 2) <= Tablero.Alto) {
             Actual.y = Posicion.y + 2;
             if (Posicion.x < Tablero.Ancho) {
+                /* Arriba-Arriba-Derecha */
                 Actual.x = Posicion.x + 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
             if (Posicion.x > 1) {
+                /* Arriba-Arriba-Izquierda */
                 Actual.x = Posicion.x - 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
         }
-        /* Arriba-Arriba-Derecha */
-        /* Arriba-Arriba-Izquierda */
         if ((Posicion.y - 2) >= 1) {
             Actual.y = Posicion.y - 2;
             if (Posicion.x < Tablero.Ancho) {
+                /* Abajo-Abajo-Derecha */
                 Actual.x = Posicion.x + 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
             if (Posicion.x > 1) {
+                /* Abajo-Abajo-Izquierda */
                 Actual.x = Posicion.x - 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
         }
-        /* Abajo-Abajo-Derecha */
-        /* Abajo-Abajo-Izquierda */
         if ((Posicion.x - 2) >= 1) {
             Actual.x = Posicion.x - 2;
             if (Posicion.y < Tablero.Alto) {
+                /* Izquierda-Izquierda-Arriba */
                 Actual.y = Posicion.y + 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
             if (Posicion.y > 1) {
+                /* Izquierda-Izquierda-Abajo */
                 Actual.y = Posicion.y - 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
         }
-        /* Izquierda-Izquierda-Arriba */
-        /* Izquierda-Izquierda-Abajo */
         if ((Posicion.x + 2) <= Tablero.Ancho) {
             Actual.x = Posicion.x + 2;
             if (Posicion.y < Tablero.Alto) {
+                /* Derecha-Derecha-Arriba */
                 Actual.y = Posicion.y + 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
             if (Posicion.y > 1) {
+                /* Derecha-Derecha-Abajo */
                 Actual.y = Posicion.y - 1;
                 if ((Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza == TipoPieza.CABALLO) && (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Color != Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color))
                     return true;
             }
         }
-        /* Derecha-Derecha-Arriba */
-        /* Derecha-Derecha-Abajo */
         /* El llegar hasta este punto sin haber encontrado ninguna pieza que amenace la posición original supone
         	   que la pieza no está amenazada */
         return false;
@@ -958,12 +958,12 @@ public class TDATablero {
            devuelve FALSE en caso contrario.
         ******************************************************************************************************************/
         if ((Posicion1.x >= 1) && (Posicion1.x <= Tablero.Ancho) && (Posicion1.y >= 1) && (Posicion1.y <= Tablero.Alto) && (Posicion2.x >= 1) && (Posicion2.x <= Tablero.Ancho) && (Posicion2.y >= 1) && (Posicion2.y <= Tablero.Alto))
+            /* Las posiciones están dentro de los límites del tablero */
             return true;
         else
             return false;
     }
 
-    /* Las posiciones están dentro de los límites del tablero */
     private boolean PosicionesIguales(TipoPosicion Posicion1, TipoPosicion Posicion2) {
         /* ****************************************************************************************************************
         Si las posiciones son iguales, devuelve TRUE, en caso contrario devuelve FALSE
@@ -1010,16 +1010,18 @@ public class TDATablero {
           Origen y Destino son las posiciones de origen y destino respectivamente del peón que realiza la captura.
         ******************************************************************************************************************/
         if (Tablero.Casilla[Destino.x - 1][Origen.y - 1].Pieza == TipoPieza.PEON) {
+            /* Hay un peón en la posición adecuada */
             if ((Tablero.UltimoMovimiento.Destino.x == Destino.x) && (Tablero.UltimoMovimiento.Destino.y == Origen.y) && (Tablero.UltimoMovimiento.Origen.x == Destino.x) && (Tablero.UltimoMovimiento.Origen.y == Destino.y))
+                /* Hay un peon en la posición contigüa que en el anterior movimiento avanzó una casilla */
                 return true;
             else
                 return false;
         } else {
+            /* No se puede capturar al paso */
             return false;
         }
     }
 
-    /* No se puede capturar al paso */
     private boolean Enroque(TipoTablero Tablero, TipoPosicion Posicion, int Tipo) {
         // VAR
         TipoPosicion PosicionTorreBlancaI = new TipoPosicion();
@@ -1027,8 +1029,6 @@ public class TDATablero {
         TipoPosicion PosicionTorreNegraI = new TipoPosicion();
         TipoPosicion PosicionTorreNegraD = new TipoPosicion();
 
-        /* Hay un peón en la posición adecuada */
-        /* Hay un peon en la posición contigüa que en el anterior movimiento avanzó una casilla */
         /* ****************************************************************************************************************
           Función que comprueba si se puede hacer un enroque.
           Devuelve TRUE en caso afirmativo y FALSE en caso negativo.
@@ -1043,43 +1043,43 @@ public class TDATablero {
         PosicionTorreNegraD.x = Tablero.Ancho;
         PosicionTorreNegraD.y = Tablero.Alto;
         if (Tablero.Casilla[Posicion.x - 1][Posicion.y - 1].Color == TipoColor.BLANCO) {
+            /* La pieza a mover es blanca */
             if (!Tablero.ReyBlancoMovido && !ReyEnJaque(Tablero, TipoColor.BLANCO)) {
+                /* Si el rey no ha sido movido y no está amenazado */
                 if ((Tipo == 1) && !Tablero.TorreIBlancaMovida && !PiezaAmenazada(PosicionTorreBlancaI, Tablero))
+                    /* Enroque largo y torre izquierda no movida y no amenazada */
                     return true;
                 else if ((Tipo == 2) && !Tablero.TorreDBlancaMovida && !PiezaAmenazada(PosicionTorreBlancaD, Tablero))
+                    /* Enroque corto y torre derecha no movida y no amenazada */
                     return true;
                 else
+                    /* Movimiento ilegal */
                     return false;
             } else {
+                /* Movimiento ilegal */
                 return false;
             }
         } else {
+            /* La pieza a mover es negra */
             if (!Tablero.ReyNegroMovido && !ReyEnJaque(Tablero, TipoColor.NEGRO)) {
+                /* Si el rey no ha sido movido y no está amenazado */
                 if ((Tipo == 1) && !Tablero.TorreINegraMovida && !PiezaAmenazada(PosicionTorreNegraI, Tablero))
+                    /* Enroque largo y torre izquierda no movida y no amenazada */
                     return true;
                 else if ((Tipo == 2) && !Tablero.TorreDNegraMovida && !PiezaAmenazada(PosicionTorreNegraD, Tablero))
+                    /* Enroque corto y torre derecha no movida y no amenazada */
                     return true;
                 else
+                    /* Movimiento ilegal */
                     return false;
             } else {
+                /* Movimiento ilegal */
                 return false;
             }
         }
     }
 
-    /* Movimiento ilegal */
     private boolean DireccionValida(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
-        /* La pieza a mover es blanca */
-        /* Si el rey no ha sido movido y no está amenazado */
-        /* Enroque largo y torre izquierda no movida y no amenazada */
-        /* Enroque corto y torre derecha no movida y no amenazada */
-        /* Movimiento ilegal */
-        /* Movimiento ilegal */
-        /* La pieza a mover es negra */
-        /* Si el rey no ha sido movido y no está amenazado */
-        /* Enroque largo y torre izquierda no movida y no amenazada */
-        /* Enroque corto y torre derecha no movida y no amenazada */
-        /* Movimiento ilegal */
         /* ****************************************************************************************************************
            Función que valida la dirección de un movimiento.
            Devuelve TRUE para los casos válidos y FALSE para movimientos no válidos.
@@ -1093,235 +1093,235 @@ public class TDATablero {
         switch (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Pieza) {
             case PEON -> {
                 if (Tablero.Casilla[Posicion1.x - 1][Posicion1.y - 1].Color == TipoColor.BLANCO) {
+                    /* La pieza a mover es blanca */
                     if (Posicion1.x == Posicion2.x) {
+                        /* Se mantiene en la misma columna */
                         if ((Posicion1.y + 1) == Posicion2.y) {
+                            /* Avanzar una casilla */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza == TipoPieza.VACIA)
                                 return true;
                             else
                                 return false;
                         } else if (((Posicion1.y + 2) == Posicion2.y) && (Posicion1.y == 2)) {
+                            /* Avanzar dos casillas */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza == TipoPieza.VACIA)
                                 return true;
                             else
                                 return false;
                         } else {
+                            /* Si se mantiene en la misma columna y se se hace un movimiento que no sea
+                            					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal */
                             return false;
                         }
                     } else if (((Posicion1.y + 1) == Posicion2.y)) {
+                        /* Avanzar en diagonal para capturas */
                         if ((Posicion1.x + 1) == Posicion2.x) {
+                            /* Captura hacia la derecha */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza != TipoPieza.VACIA)
+                                /* En la posición de destino hay un peon */
                                 return true;
                             else if (CapturaAlPaso(Tablero, Posicion1, Posicion2))
+                                /* Se puede capturar al paso */
                                 return true;
                             else
+                                /* Si no se puede hacer una captura */
                                 return false;
                         } else if (((Posicion1.x - 1) == Posicion2.x)) {
+                            /* Captura hacia la izquierda */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza != TipoPieza.VACIA)
+                                /* En la posición de destino hay un peon */
                                 return true;
                             else if (CapturaAlPaso(Tablero, Posicion1, Posicion2))
+                                /* Se puede capturar al paso */
                                 return true;
                             else
+                                /* Si no existe un peón que se pueda capturar */
                                 return false;
                         } else {
+                            /* Si se avanza una posición y se mueve lateralmente más de una posicion es
+                            					   un movimiento ilegal */
                             return false;
                         }
                     } else {
+                        /* Movimiento ilegal */
                         return false;
                     }
                 } else {
+                    /* La pieza a mover es negra */
                     if (Posicion1.x == Posicion2.x) {
+                        /* Se mantiene en la misma columna */
                         if ((Posicion1.y - 1) == Posicion2.y) {
+                            /* Avanzar una casilla */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza == TipoPieza.VACIA)
                                 return true;
                             else
                                 return false;
                         } else if (((Posicion1.y - 2) == Posicion2.y) && (Posicion1.y == (Tablero.Alto - 1))) {
+                            /* Avanzar dos casillas */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza == TipoPieza.VACIA)
                                 return true;
                             else
                                 return false;
                         } else {
+                            /* Si se mantiene en la misma columna y se se hace un movimiento que no sea
+                            					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal */
                             return false;
                         }
                     } else if (((Posicion1.y - 1) == Posicion2.y)) {
+                        /* Avanzar en diagonal para capturas */
                         if ((Posicion1.x + 1) == Posicion2.x) {
+                            /* Captura hacia la derecha */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza != TipoPieza.VACIA)
+                                /* En la posición de destino hay un peon */
                                 return true;
                             else if (CapturaAlPaso(Tablero, Posicion1, Posicion2))
+                                /* Se puede capturar al paso */
                                 return true;
                             else
+                                /* Si no se puede hacer una captura */
                                 return false;
                         } else if (((Posicion1.x - 1) == Posicion2.x)) {
+                            /* Captura hacia la izquierda */
                             if (Tablero.Casilla[Posicion2.x - 1][Posicion2.y - 1].Pieza != TipoPieza.VACIA)
+                                /* En la posición de destino hay un peon */
                                 return true;
                             else if (CapturaAlPaso(Tablero, Posicion1, Posicion2))
+                                /* Se puede capturar al paso */
                                 return true;
                             else
+                                /* Si no existe un peón que se pueda capturar */
                                 return false;
                         } else {
+                            /* Si se avanza una posición y se mueve lateralmente más de una posicion es
+                            					   un movimiento ilegal */
                             return false;
                         }
                     } else {
+                        /* Movimiento ilegal */
                         return false;
                     }
                 }
             }
             case TORRE -> {
                 if (Posicion1.x == Posicion2.x)
+                    /* Movimiento horizontal */
                     return true;
                 else if (Posicion1.y == Posicion2.y)
+                    /* Movimiento vertical */
                     return true;
                 else
+                    /* Movimiento ilegal */
                     return false;
             }
             case ALFIL -> {
                 if (((Posicion2.x - Posicion1.x) == (Posicion2.y - Posicion1.y)) || ((Posicion2.x - Posicion1.x) == (-(Posicion2.y - Posicion1.y))))
+                    /* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) */
                     return true;
                 else
+                    /* Movimiento ilegal */
                     return false;
             }
             case CABALLO -> {
                 if ((Posicion1.x + 2) == Posicion2.x) {
+                    /* Movimiento de dos casillas a la derecha */
                     if ((Posicion1.y + 1) == Posicion2.y)
+                        /* Movimiento de una casilla arriba */
                         return true;
                     else if ((Posicion1.y - 1) == Posicion2.y)
+                        /* Movimiento de una casilla abajo */
                         return true;
                     else
+                        /* Movimiento ilegal */
                         return false;
                 } else if ((Posicion1.x - 2) == Posicion2.x) {
+                    /* Movimiento de dos casillas a la izquierda */
                     if ((Posicion1.y + 1) == Posicion2.y)
+                        /* Movimiento de una casilla arriba */
                         return true;
                     else if ((Posicion1.y - 1) == Posicion2.y)
+                        /* Movimiento de una casilla abajo */
                         return true;
                     else
+                        /* Movimiento ilegal */
                         return false;
                 } else if ((Posicion1.y + 2) == Posicion2.y) {
+                    /* Movimiento de dos casillas hacia arriba */
                     if ((Posicion1.x + 1) == Posicion2.x)
+                        /* Movimiento de una casilla a la derecha */
                         return true;
                     else if ((Posicion1.x - 1) == Posicion2.x)
+                        /* Movimiento de una casilla a la izquierda */
                         return true;
                     else
+                        /* Movimiento ilegal */
                         return false;
                 } else if ((Posicion1.y - 2) == Posicion2.y) {
+                    /* Movimiento de dos casillas hacia abajo */
                     if ((Posicion1.x + 1) == Posicion2.x)
+                        /* Movimiento de una casilla a la derecha */
                         return true;
                     else if ((Posicion1.x - 1) == Posicion2.x)
+                        /* Movimiento de una casilla a la izquierda */
                         return true;
                     else
+                        /* Movimiento ilegal */
                         return false;
                 } else {
+                    /* Movimiento ilegal */
                     return false;
                 }
             }
             case DAMA -> {
                 if (Posicion1.x == Posicion2.x)
+                    /* Movimiento horizontal */
                     return true;
                 else if (Posicion1.y == Posicion2.y)
+                    /* Movimiento vertical */
                     return true;
                 else if (((Posicion2.x - Posicion1.x) == (Posicion2.y - Posicion1.y)) || ((Posicion2.x - Posicion1.x) == (-(Posicion2.y - Posicion1.y))))
+                    /* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) */
                     return true;
                 else
+                    /* Movimiento ilegal */
                     return false;
             }
             case REY -> {
                 if ((((Posicion2.x - Posicion1.x) <= 1) && ((Posicion2.x - Posicion1.x) >= -1)) && (((Posicion2.y - Posicion1.y) <= 1) && ((Posicion2.y - Posicion1.y) >= -1))) {
+                    /* Se mueve el rey en cualquier dirección sólo una casilla */
                     return true;
                 } else if (((Posicion1.x - 2) == Posicion2.x) && (Posicion1.y == Posicion2.y)) {
+                    /* Enroque largo */
                     if (Enroque(Tablero, Posicion1, 1))
+                        /* Se comprueba la posibilidad de enroque */
                         return true;
                     else
+                        /* Movimiento ilegal */
                         return false;
                 } else if (((Posicion1.x + 2) == Posicion2.x) && (Posicion1.y == Posicion2.y)) {
+                    /* Enroque corto */
                     if (Enroque(Tablero, Posicion1, 2))
+                        /* Se comprueba la posibilidad de enroque */
                         return true;
                     else
+                        /* Movimiento ilegal */
                         return false;
                 } else {
+                    /* Movimiento ilegal */
                     return false;
                 }
             }
             default -> {
+                /* Movimiento ilegal */
                 return false;
             }
         }
     }
 
-    /* Movimiento ilegal */
     private boolean CaminoDespejado(TipoPosicion Posicion1, TipoPosicion Posicion2, TipoTablero Tablero) {
         // VAR
         TipoPosicion Actual = new TipoPosicion();
         int Indice = 0;
 
-        /* La pieza a mover es blanca */
-        /* Se mantiene en la misma columna */
-        /* Avanzar una casilla */
-        /* Avanzar dos casillas */
-        /* Si se mantiene en la misma columna y se se hace un movimiento que no sea
-        					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal */
-        /* Avanzar en diagonal para capturas */
-        /* Captura hacia la derecha */
-        /* En la posición de destino hay un peon */
-        /* Se puede capturar al paso */
-        /* Si no se puede hacer una captura */
-        /* Captura hacia la izquierda */
-        /* En la posición de destino hay un peon */
-        /* Se puede capturar al paso */
-        /* Si no existe un peón que se pueda capturar */
-        /* Si se avanza una posición y se mueve lateralmente más de una posicion es
-        					   un movimiento ilegal */
-        /* Movimiento ilegal */
-        /* La pieza a mover es negra */
-        /* Se mantiene en la misma columna */
-        /* Avanzar una casilla */
-        /* Avanzar dos casillas */
-        /* Si se mantiene en la misma columna y se se hace un movimiento que no sea
-        					   avanzar una casilla o dos si no había sido movido es un movimiento ilegal */
-        /* Avanzar en diagonal para capturas */
-        /* Captura hacia la derecha */
-        /* En la posición de destino hay un peon */
-        /* Se puede capturar al paso */
-        /* Si no se puede hacer una captura */
-        /* Captura hacia la izquierda */
-        /* En la posición de destino hay un peon */
-        /* Se puede capturar al paso */
-        /* Si no existe un peón que se pueda capturar */
-        /* Si se avanza una posición y se mueve lateralmente más de una posicion es
-        					   un movimiento ilegal */
-        /* Movimiento ilegal */
-        /* Movimiento horizontal */
-        /* Movimiento vertical */
-        /* Movimiento ilegal */
-        /* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) */
-        /* Movimiento ilegal */
-        /* Movimiento de dos casillas a la derecha */
-        /* Movimiento de una casilla arriba */
-        /* Movimiento de una casilla abajo */
-        /* Movimiento ilegal */
-        /* Movimiento de dos casillas a la izquierda */
-        /* Movimiento de una casilla arriba */
-        /* Movimiento de una casilla abajo */
-        /* Movimiento ilegal */
-        /* Movimiento de dos casillas hacia arriba */
-        /* Movimiento de una casilla a la derecha */
-        /* Movimiento de una casilla a la izquierda */
-        /* Movimiento ilegal */
-        /* Movimiento de dos casillas hacia abajo */
-        /* Movimiento de una casilla a la derecha */
-        /* Movimiento de una casilla a la izquierda */
-        /* Movimiento ilegal */
-        /* Movimiento ilegal */
-        /* Movimiento horizontal */
-        /* Movimiento vertical */
-        /* Movimiento diagonal (se mueve a lo ancho igual que a lo alto) */
-        /* Movimiento ilegal */
-        /* Se mueve el rey en cualquier dirección sólo una casilla */
-        /* Enroque largo */
-        /* Se comprueba la posibilidad de enroque */
-        /* Movimiento ilegal */
-        /* Enroque corto */
-        /* Se comprueba la posibilidad de enroque */
-        /* Movimiento ilegal */
-        /* Movimiento ilegal */
         /* ****************************************************************************************************************
            Devuelve TRUE en caso de que no haya obstáculos entre las posiciones de origen y destino de la jugada
            y FALSE en caso contrario 
@@ -1338,159 +1338,159 @@ public class TDATablero {
                 Actual.x = Posicion1.x;
                 Actual.y = Posicion1.y;
                 if (Actual.y < Posicion2.y) {
+                    /* Movimiento hacia arriba */
                     if (Actual.x < Posicion2.x) {
+                        /* Movimiento a la derecha */
                         Actual.x = Actual.x + 1;
                         Actual.y = Actual.y + 1;
                         while ((Actual.x < Posicion2.x) && (Actual.y < Posicion2.y)) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.x = Actual.x + 1;
                             Actual.y = Actual.y + 1;
                         }
                         return true;
                     } else if (Actual.x > Posicion2.x) {
+                        /* Movimiento a la izquierda */
                         Actual.x = Actual.x - 1;
                         Actual.y = Actual.y + 1;
                         while ((Actual.x > Posicion2.x) && (Actual.y < Posicion2.y)) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.x = Actual.x - 1;
                             Actual.y = Actual.y + 1;
                         }
                         return true;
                     } else {
+                        /* Movimiento vertical */
                         Actual.y = Actual.y + 1;
                         while (Actual.y < Posicion2.y) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.y = Actual.y + 1;
                         }
                         return true;
                     }
                 } else if (Actual.y > Posicion2.y) {
+                    /* Movimiento hacia abajo */
                     if (Actual.x < Posicion2.x) {
+                        /* Movimiento a la derecha */
                         Actual.x = Actual.x + 1;
                         Actual.y = Actual.y - 1;
                         while ((Actual.x < Posicion2.x) && (Actual.y > Posicion2.y)) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.x = Actual.x + 1;
                             Actual.y = Actual.y - 1;
                         }
                         return true;
                     } else if (Actual.x > Posicion2.x) {
+                        /* Movimiento a la izquierda */
                         Actual.x = Actual.x - 1;
                         Actual.y = Actual.y - 1;
                         while ((Actual.x > Posicion2.x) && (Actual.y > Posicion2.y)) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.x = Actual.x - 1;
                             Actual.y = Actual.y - 1;
                         }
                         return true;
                     } else {
+                        /* Movimiento vertical */
                         Actual.y = Actual.y - 1;
                         while (Actual.y > Posicion2.y) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.y = Actual.y - 1;
                         }
                         return true;
                     }
                 } else {
+                    /* Movimiento lateral */
                     if (Actual.x < Posicion2.x) {
+                        /* Movimiento a la derecha */
                         Actual.x = Actual.x + 1;
                         while (Actual.x < Posicion2.x) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.x = Actual.x + 1;
                         }
                         return true;
                     } else {
+                        /* Movimiento a la izquierda */
                         Actual.x = Actual.x - 1;
                         while (Actual.x > Posicion2.x) {
+                            /* Mientras no se haya llegado a la posición final */
                             if (Tablero.Casilla[Actual.x - 1][Actual.y - 1].Pieza != TipoPieza.VACIA)
+                                /* Comprobación de que no haya obstáculo */
                                 return false;
+                            /* Se incrementa la posición */
                             Actual.x = Actual.x - 1;
                         }
                         return true;
                     }
                 }
             } else if (Posicion1.y == Posicion2.y) {
+                /* La jugada puede ser un enroque */
                 if ((Posicion1.x + 2) == Posicion2.x) {
+                    /* Enroque a la derecha */
                     for (Indice = (Posicion1.x + 1); Indice <= (Tablero.Ancho - 1); Indice++) {
                         if (Tablero.Casilla[Indice - 1][Posicion1.y - 1].Pieza != TipoPieza.VACIA)
+                            /* Comprobación de que no haya obstáculo */
                             return false;
                     }
+                    /* Si no hay obstáculos entre la torre y el rey */
                     return true;
                 } else if ((Posicion1.x - 2) == Posicion2.x) {
+                    /* Enroque a la izquierda */
                     for (Indice = (Posicion1.x - 1); Indice >= 2; Indice -= 1) {
                         if (Tablero.Casilla[Indice - 1][Posicion1.y - 1].Pieza != TipoPieza.VACIA)
+                            /* Comprobación de que no haya obstáculo */
                             return false;
                     }
+                    /* Si no hay obstáculos entre la torre y el rey */
                     return true;
                 } else {
+                    /* Si no es un enroque */
                     return true;
                 }
             } else {
+                /* La pieza es el rey y como sólo se mueve una posición no puede haber obstáculos */
                 return true;
             }
         } else {
+            /* Si la pieza es un caballo, no hace falta comprobación */
             return true;
         }
     }
 
-    /* La pieza es el rey y como sólo se mueve una posición no puede haber obstáculos */
-    /* Si la pieza es un caballo, no hace falta comprobación */
     public void PosicionRey(TipoTablero Tablero, TipoColor Color, /* VAR */ TipoPosicion Posicion) {
         // VAR
         int i = 0;
         int j = 0;
         boolean Encontrado = false;
 
-        /* Movimiento hacia arriba */
-        /* Movimiento a la derecha */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento a la izquierda */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento vertical */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento hacia abajo */
-        /* Movimiento a la derecha */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento a la izquierda */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento vertical */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento lateral */
-        /* Movimiento a la derecha */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* Movimiento a la izquierda */
-        /* Mientras no se haya llegado a la posición final */
-        /* Comprobación de que no haya obstáculo */
-        /* Se incrementa la posición */
-        /* La jugada puede ser un enroque */
-        /* Enroque a la derecha */
-        /* Comprobación de que no haya obstáculo */
-        /* Si no hay obstáculos entre la torre y el rey */
-        /* Enroque a la izquierda */
-        /* Comprobación de que no haya obstáculo */
-        /* Si no hay obstáculos entre la torre y el rey */
-        /* Si no es un enroque */
         /* ****************************************************************************************************************
         	Devuelve la posición del rey del color elegido.
         ******************************************************************************************************************/
@@ -1697,8 +1697,10 @@ public class TDATablero {
                     switch (Tablero.Casilla[i - 1][j - 1].Pieza) {
                         case PEON -> {
                             Puntuacion = Puntuacion + 100;
+                            /* Puntuación por posición */
                             if (Tablero.Casilla[i - 1][j - 1].Color == TipoColor.BLANCO) {
                                 Puntuacion = Puntuacion + (j * (PuntuacionTablero_Auxiliar1(i, Tablero))) - 2;
+                                /* Puntuación menor por peón doblado */
                                 Origen.x = i;
                                 Origen.y = j;
                                 do {
@@ -1708,6 +1710,7 @@ public class TDATablero {
                                     Puntuacion = Puntuacion - 20;
                             } else {
                                 Puntuacion = Puntuacion + ((Tablero.Alto + 1 - j) * (PuntuacionTablero_Auxiliar1(i, Tablero))) - 2;
+                                /* Puntuación menor por peón doblado */
                                 Origen.x = i;
                                 Origen.y = j;
                                 do {
@@ -1719,67 +1722,101 @@ public class TDATablero {
                         }
                         case TORRE -> {
                             Puntuacion = Puntuacion + 500;
+                            /* Bonificación por posibilidad de movimiento */
                             Origen.x = i;
                             Origen.y = j;
+                            /* Arriba */
                             Destino.x = Origen.x;
                             Destino.y = Origen.y + 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.y = Destino.y + 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Abajo */
                             Destino.x = Origen.x;
                             Destino.y = Origen.y - 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.y = Destino.y - 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Izquierda */
                             Destino.x = Origen.x - 1;
                             Destino.y = Origen.y;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.x = Destino.x - 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Derecha */
                             Destino.x = Origen.x + 1;
                             Destino.y = Origen.y;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.x = Destino.x + 1;
                             }
                         }
                         case ALFIL -> {
+                            /* Probar la siguiente posición */
+                            /* ********/
                             Puntuacion = Puntuacion + 330;
+                            /* Bonificación por posibilidad de movimiento */
                             Origen.x = i;
                             Origen.y = j;
+                            /* Arriba-Izquierda */
                             Destino.x = Origen.x - 1;
                             Destino.y = Origen.y + 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.x = Destino.x - 1;
                                 Destino.y = Destino.y + 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Arriba-Derecha */
                             Destino.x = Origen.x + 1;
                             Destino.y = Origen.y + 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.x = Destino.x + 1;
                                 Destino.y = Destino.y + 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Abajo-Izquierda */
                             Destino.x = Origen.x - 1;
                             Destino.y = Origen.y - 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.x = Destino.x - 1;
                                 Destino.y = Destino.y - 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Abajo-Derecha */
                             Destino.x = Origen.x + 1;
                             Destino.y = Origen.y - 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion + 1;
                                 Destino.x = Destino.x + 1;
                                 Destino.y = Destino.y - 1;
                             }
                         }
                         case CABALLO -> {
+                            /* Probar la siguiente posición */
+                            /* ********/
                             Puntuacion = Puntuacion + 315;
                             Puntuacion = Puntuacion + (3 * PuntuacionTablero_Centrado(i, j, Tablero));
                         }
@@ -1797,11 +1834,14 @@ public class TDATablero {
                         }
                     }
                 } else {
+                    /* Casilla vacía */
                     switch (Tablero.Casilla[i - 1][j - 1].Pieza) {
                         case PEON -> {
                             Puntuacion = Puntuacion - 100;
+                            /* Puntuación por posición */
                             if (Tablero.Casilla[i - 1][j - 1].Color == TipoColor.BLANCO) {
                                 Puntuacion = Puntuacion - ((j * (PuntuacionTablero_Auxiliar1(i, Tablero)) - 2));
+                                /* Puntuación mayor por peón doblado */
                                 Origen.x = i;
                                 Origen.y = j;
                                 do {
@@ -1811,6 +1851,7 @@ public class TDATablero {
                                     Puntuacion = Puntuacion + 20;
                             } else {
                                 Puntuacion = Puntuacion - (((Tablero.Alto + 1 - j) * (PuntuacionTablero_Auxiliar1(i, Tablero))) - 2);
+                                /* Puntuación mayor por peón doblado */
                                 Origen.x = i;
                                 Origen.y = j;
                                 do {
@@ -1822,67 +1863,101 @@ public class TDATablero {
                         }
                         case TORRE -> {
                             Puntuacion = Puntuacion - 500;
+                            /* Penalización por posibilidad de movimiento */
                             Origen.x = i;
                             Origen.y = j;
+                            /* Arriba */
                             Destino.x = Origen.x;
                             Destino.y = Origen.y + 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.y = Destino.y + 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Abajo */
                             Destino.x = Origen.x;
                             Destino.y = Origen.y - 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.y = Destino.y - 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Izquierda */
                             Destino.x = Origen.x - 1;
                             Destino.y = Origen.y;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.x = Destino.x - 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Derecha */
                             Destino.x = Origen.x + 1;
                             Destino.y = Origen.y;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.x = Destino.x + 1;
                             }
                         }
                         case ALFIL -> {
+                            /* Probar la siguiente posición */
+                            /* ********/
                             Puntuacion = Puntuacion - 330;
+                            /* Bonificación por posibilidad de movimiento */
                             Origen.x = i;
                             Origen.y = j;
+                            /* Arriba-Izquierda */
                             Destino.x = Origen.x - 1;
                             Destino.y = Origen.y + 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.x = Destino.x - 1;
                                 Destino.y = Destino.y + 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Arriba-Derecha */
                             Destino.x = Origen.x + 1;
                             Destino.y = Origen.y + 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.x = Destino.x + 1;
                                 Destino.y = Destino.y + 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Abajo-Izquierda */
                             Destino.x = Origen.x - 1;
                             Destino.y = Origen.y - 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.x = Destino.x - 1;
                                 Destino.y = Destino.y - 1;
                             }
+                            /* Probar la siguiente posición */
+                            /* ********/
+                            /* Abajo-Derecha */
                             Destino.x = Origen.x + 1;
                             Destino.y = Origen.y - 1;
                             while (MovimientoLegal(Origen, Destino, Tablero, false)) {
+                                /* Mientras la jugada no sea ilegal */
                                 Puntuacion = Puntuacion - 1;
                                 Destino.x = Destino.x + 1;
                                 Destino.y = Destino.y - 1;
                             }
                         }
                         case CABALLO -> {
+                            /* Probar la siguiente posición */
+                            /* ********/
                             Puntuacion = Puntuacion - 315;
                             Puntuacion = Puntuacion - (3 * PuntuacionTablero_Centrado(i, j, Tablero));
                         }
@@ -1902,81 +1977,6 @@ public class TDATablero {
                 }
             }
         }
-        /* Puntuación por posición */
-        /* Puntuación menor por peón doblado */
-        /* Puntuación menor por peón doblado */
-        /* Bonificación por posibilidad de movimiento */
-        /* Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Bonificación por posibilidad de movimiento */
-        /* Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Casilla vacía */
-        /* Puntuación por posición */
-        /* Puntuación mayor por peón doblado */
-        /* Puntuación mayor por peón doblado */
-        /* Penalización por posibilidad de movimiento */
-        /* Arriba */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Bonificación por posibilidad de movimiento */
-        /* Arriba-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Arriba-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Izquierda */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
-        /* Abajo-Derecha */
-        /* Mientras la jugada no sea ilegal */
-        /* Probar la siguiente posición */
-        /* ********/
         /* Casilla vacía */
         if (!reyblanco) {
             if (Jugador == TipoColor.NEGRO)
@@ -2061,21 +2061,21 @@ public class TDATablero {
                             inOut.Write('p');
                     }
                     default -> {
+                        /* Casilla vacía */
                         inOut.Write('V');
                     }
                 }
             }
             inOut.WriteLn();
         }
-        /* Casilla vacía */
         if (Numeracion) {
+            /* Escribe la numeración inferior */
             inOut.WriteLn();
             inOut.WriteString("     ");
             for (i = 1; i <= Tablero.Ancho; i++) {
                 inOut.WriteInt(i, 1);
             }
         }
-        /* Escribe la numeración inferior */
         inOut.WriteLn();
         inOut.WriteLn();
         if (Debug) {
